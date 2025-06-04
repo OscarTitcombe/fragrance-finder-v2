@@ -15,7 +15,7 @@ export default function LoadingPage() {
 
   useEffect(() => {
     // Animate each bar sequentially
-    let timeouts: NodeJS.Timeout[] = [];
+    const timeouts: NodeJS.Timeout[] = [];
     timeouts.push(
       setTimeout(() => setProgress([100, 0, 0]), 400)
     );

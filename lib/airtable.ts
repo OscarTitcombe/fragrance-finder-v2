@@ -147,7 +147,7 @@ export async function getMatchingFragrances(tags: string[]): Promise<Fragrance[]
           description: record.fields.Description,
           tags: recordTags,
           image: (() => {
-            const images = (record.fields as any).Images;
+            const images = record.fields.Images;
             if (Array.isArray(images)) return images[0] || record.fields.Image || '/default-bottle.png';
             if (typeof images === 'string') return images || record.fields.Image || '/default-bottle.png';
             return record.fields.Image || '/default-bottle.png';
@@ -160,7 +160,7 @@ export async function getMatchingFragrances(tags: string[]): Promise<Fragrance[]
         };
       })
       .filter((f): f is Fragrance => f !== null)
-      .sort((a: any, b: any) => {
+      .sort((a: Fragrance, b: Fragrance) => {
         if (b.relevance !== a.relevance) return b.relevance - a.relevance;
         return b.avgScore - a.avgScore;
       })
