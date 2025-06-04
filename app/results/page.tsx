@@ -1,6 +1,6 @@
 import { getMatchingFragrances } from '@/lib/airtable';
-import TagPill from '@/components/TagPill';
 import { cookies } from 'next/headers';
+import Image from 'next/image';
 
 // Fallback mock tags if no cookie is present
 const mockTags = [
@@ -14,19 +14,40 @@ const mockTags = [
   'designer-brand'
 ];
 
+interface FragranceFields {
+  Longevity?: number;
+  Sillage?: number;
+  Versatility?: number;
+  Uniqueness?: number;
+  MassAppeal?: number;
+  Value?: number;
+  [key: string]: unknown;
+}
+
+interface Fragrance {
+  title: string;
+  description: string;
+  tags: string[];
+  image: string;
+  matchCount: number;
+  avgScore: number;
+  fields: FragranceFields;
+  score: number;
+  relevance: number;
+}
+
 export default async function Results() {
   // Read the quiz_tags cookie
   const cookieStore = await cookies();
   const quizTagsCookie = cookieStore.get('quiz_tags');
   
   // Parse the cookie value or use mock data
-  const tags = quizTagsCookie 
+  const tags: string[] = quizTagsCookie 
     ? JSON.parse(quizTagsCookie.value)
     : mockTags;
-  const totalTags = tags.length;
 
   // Fetch fragrances using the tags
-  const fragrances = await getMatchingFragrances(tags);
+  const fragrances: Fragrance[] = await getMatchingFragrances(tags);
 
   return (
     <main className="min-h-screen flex flex-col justify-center items-center px-4 pt-20 font-jakarta">
@@ -38,21 +59,25 @@ export default async function Results() {
       ) : (
         <div className="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {fragrances.map((fragrance, index) => {
-            const fields: Record<string, any> = fragrance.fields || {};
+            const fields = fragrance.fields;
             const getRating = (key: string) => {
               const val = fields[key];
               return typeof val === 'number' && !isNaN(val) ? val : 0;
             };
             const relevance = typeof fragrance.relevance === 'number' ? fragrance.relevance : 0;
-            const purchaseUrl = fields['link_global'] || '';
-            const moreInfo = fields['MoreInfo'] || '';
+            const purchaseUrl = typeof fields['link_global'] === 'string' ? fields['link_global'] as string : '';
+            const moreInfo = typeof fields['MoreInfo'] === 'string' ? fields['MoreInfo'] as string : '';
             return (
               <div key={index} className="bg-white rounded-xl shadow-md p-6 space-y-4 flex flex-col items-stretch relative max-w-md mx-auto">
                 {fragrance.image && (
-                  <img
+                  <Image
                     src={fragrance.image}
                     alt={fragrance.title}
+                    width={320}
+                    height={192}
                     className="rounded-md shadow-sm w-full h-48 object-contain mx-auto"
+                    style={{ width: '100%', height: '192px' }}
+                    priority={index < 3}
                   />
                 )}
                 <h2 className="text-lg font-semibold text-center">{fragrance.title}</h2>

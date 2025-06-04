@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import { useState } from "react";
 
 interface FragranceCardProps {
@@ -6,11 +7,12 @@ interface FragranceCardProps {
   image: string;
   ratings: {
     Longevity: number;
-    Projection: number;
+    Sillage: number;
     Versatility: number;
-    Complexity: number;
     Uniqueness: number;
     Overall: number;
+    MassAppeal?: number;
+    Value?: number;
   };
   moreInfo?: string;
   purchaseUrl?: string;
@@ -29,10 +31,14 @@ export default function FragranceCard({
   return (
     <div className="bg-white rounded-2xl shadow-lg p-6 flex flex-col items-center w-full max-w-md mx-auto">
       {image && (
-        <img
+        <Image
           src={image}
           alt={name}
+          width={320}
+          height={192}
           className="w-32 h-40 object-contain mb-4 rounded-xl shadow"
+          style={{ width: '128px', height: '160px' }}
+          priority
         />
       )}
       <h2 className="text-xl font-bold mb-1 text-center font-jakarta">{name}</h2>
@@ -43,24 +49,24 @@ export default function FragranceCard({
           <span className="font-semibold">{ratings.Longevity ?? 0}/10</span>
         </div>
         <div className="text-sm text-gray-700 flex justify-between">
-          <span>Projection:</span>
-          <span className="font-semibold">{ratings.Projection ?? 0}/10</span>
+          <span>Sillage:</span>
+          <span className="font-semibold">{ratings.Sillage ?? 0}/10</span>
         </div>
         <div className="text-sm text-gray-700 flex justify-between">
           <span>Versatility:</span>
           <span className="font-semibold">{ratings.Versatility ?? 0}/10</span>
         </div>
         <div className="text-sm text-gray-700 flex justify-between">
-          <span>Complexity:</span>
-          <span className="font-semibold">{ratings.Complexity ?? 0}/10</span>
-        </div>
-        <div className="text-sm text-gray-700 flex justify-between">
           <span>Uniqueness:</span>
           <span className="font-semibold">{ratings.Uniqueness ?? 0}/10</span>
         </div>
         <div className="text-sm text-gray-700 flex justify-between">
-          <span>Overall:</span>
-          <span className="font-semibold">{ratings.Overall ?? 0}/10</span>
+          <span>Mass Appeal:</span>
+          <span className="font-semibold">{ratings.MassAppeal ?? 0}/10</span>
+        </div>
+        <div className="text-sm text-gray-700 flex justify-between">
+          <span>Value:</span>
+          <span className="font-semibold">{ratings.Value ?? 0}/10</span>
         </div>
       </div>
       {purchaseUrl && (

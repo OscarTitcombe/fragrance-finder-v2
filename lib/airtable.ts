@@ -3,20 +3,32 @@ console.log("Loaded ENV:", {
   AIRTABLE_BASE_ID: process.env.AIRTABLE_BASE_ID,
   AIRTABLE_TABLE_NAME: process.env.AIRTABLE_TABLE_NAME,
 });
+
+interface AirtableFields {
+  Title: string;
+  Description: string;
+  Tags: string[];
+  Image?: string;
+  Images?: string[] | string;
+  rating1?: number;
+  rating2?: number;
+  rating3?: number;
+  rating4?: number;
+  rating5?: number;
+  rating6?: number;
+  Sillage?: number;
+  Versatility?: number;
+  Uniqueness?: number;
+  MassAppeal?: number;
+  Value?: number;
+  link_global?: string;
+  MoreInfo?: string;
+  [key: string]: unknown;
+}
+
 interface AirtableRecord {
   id: string;
-  fields: {
-    Title: string;
-    Description: string;
-    Tags: string[];
-    Image: string;
-    rating1: number;  // Longevity
-    rating2: number;  // Projection
-    rating3: number;  // Versatility
-    rating4: number;  // Complexity
-    rating5: number;  // Uniqueness
-    rating6: number;  // Overall
-  };
+  fields: AirtableFields;
 }
 
 interface AirtableResponse {
@@ -30,10 +42,9 @@ interface Fragrance {
   image: string;
   matchCount: number;
   avgScore: number;
-  fields: any; // allow any shape for Airtable fields
+  fields: AirtableFields;
   score: number;
   relevance: number;
-  [key: string]: any; // allow extra fields like score
 }
 
 export async function getMatchingFragrances(tags: string[]): Promise<Fragrance[]> {

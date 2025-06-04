@@ -67,7 +67,7 @@ export default function QuizStep() {
     return (
       <main className="min-h-screen flex flex-col justify-center items-center px-4 pt-20 font-jakarta">
         <h1 className="text-4xl font-semibold mb-6">Invalid Step</h1>
-        <p className="text-base text-gray-600">This quiz step doesn't exist. Please start over.</p>
+        <p className="text-base text-gray-600">This quiz step doesn&apos;t exist. Please start over.</p>
       </main>
     );
   }
