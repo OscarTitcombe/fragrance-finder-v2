@@ -25,7 +25,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <main className="pt-4 max-w-3xl mx-auto p-6">{children}</main>
         <Script
           src="https://www.anrdoezrs.net/am/101457651/include/allCj/impressions/page/am.js"
-          strategy="lazyOnload"
+          strategy="afterInteractive"
         />
       </body>
     </html>
