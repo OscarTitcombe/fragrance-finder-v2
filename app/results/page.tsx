@@ -74,7 +74,8 @@ export default async function Results() {
             };
             const relevance = typeof fragrance.relevance === 'number' ? fragrance.relevance : 0;
             const purchaseUrl = typeof fields['link_global'] === 'string' ? fields['link_global'] as string : '';
-            const moreInfo = typeof fields['MoreInfo'] === 'string' ? fields['MoreInfo'] as string : '';
+            // Remove or comment out unused variable 'moreInfo'
+            // const moreInfo = typeof fields['MoreInfo'] === 'string' ? fields['MoreInfo'] as string : '';
             return (
               <div key={index} className="bg-white rounded-2xl shadow-lg p-8 space-y-5 flex flex-col items-stretch relative max-w-md mx-auto border border-gray-100">
                 <div className="text-lg text-gray-700 font-bold text-left mb-2">Match: {relevance.toFixed(1)}%</div>
