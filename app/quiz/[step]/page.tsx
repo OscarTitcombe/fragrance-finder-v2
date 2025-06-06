@@ -59,6 +59,8 @@ export default function QuizStep() {
 
   // Handle Skip to Results
   const handleSkip = () => {
+    const tagArray = Object.values(answers);
+    document.cookie = `quiz_tags=${JSON.stringify(tagArray)}; path=/; max-age=3600`;
     window.location.href = '/loading';
   };
 
@@ -73,7 +75,7 @@ export default function QuizStep() {
   }
 
   return (
-    <main className="min-h-screen flex flex-col justify-center items-center px-4 pt-20 font-jakarta">
+    <main className="min-h-[100svh] flex flex-col justify-center items-center font-jakarta">
       <div className="w-full max-w-md mx-auto space-y-4">
         {/* Green progress bar */}
         <div className="w-full mt-4">

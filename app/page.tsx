@@ -2,7 +2,7 @@ import Link from 'next/link';
 
 export default function Home() {
   return (
-    <main className="min-h-screen flex flex-col justify-center items-center px-4 pt-20 font-jakarta">
+    <main className="min-h-[100svh] flex flex-col justify-center items-center px-4 font-jakarta">
       <div className="w-full max-w-md mx-auto flex flex-col items-center space-y-4">
         <h1 className="text-4xl font-semibold text-slate-900 text-center">Fragrance Finder</h1>
         <p className="text-base text-gray-600 text-center">Answer 10 quick questions to find your perfect fragrance match.</p>
