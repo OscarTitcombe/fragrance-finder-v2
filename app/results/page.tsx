@@ -50,10 +50,10 @@ export default async function Results() {
   const fragrances: Fragrance[] = await getMatchingFragrances(tags);
 
   return (
-    <main className="min-h-screen flex flex-col items-start px-4 pt-20 font-jakarta w-full">
+    <main className="min-h-screen flex flex-col items-start px-1 pt-4 font-jakarta w-full">
       <h1 className="text-4xl font-semibold mb-2 text-left w-full">Recommended Fragrances</h1>
       <div className="w-full mb-8">
-        <div className="bg-white rounded-xl border border-gray-200 px-6 py-4">
+        <div className="bg-white rounded-xl border border-gray-200 px-4 py-3">
           <div className="font-semibold text-lg mb-1">Your Fragrance Profile</div>
           <div className="text-gray-600 text-base">
             {`Profile: ${tags.map(tag => tag.replace(/-/g, ' ')).join(', ')}`}
