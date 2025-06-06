@@ -7,7 +7,7 @@ export default function Home() {
         <h1 className="text-4xl font-semibold text-slate-900 text-center">Fragrance Finder</h1>
         <p className="text-base text-gray-600 text-center">Answer 10 quick questions to find your perfect fragrance match.</p>
         <Link href="/quiz/1">
-          <button className="bg-gradient-to-b from-neutral-900 to-neutral-800 text-white px-0 py-5 rounded-lg shadow-md hover:opacity-90 transition text-2xl font-semibold w-[95vw] max-w-[500px] mx-auto block">
+          <button className="bg-gradient-to-b from-neutral-900 to-neutral-800 text-white px-0 py-5 rounded-lg shadow-md hover:opacity-90 transition text-2xl font-semibold w-[90vw] max-w-[500px] mx-auto block">
             Begin
           </button>
         </Link>
