@@ -94,13 +94,13 @@ export default async function Results() {
                 )}
                 <h2 className="text-2xl font-bold text-left text-neutral-900 mb-1">{fragrance.title}</h2>
                 <p className="text-base text-gray-700 text-left font-normal mb-2">{fragrance.description}</p>
-                <div className="grid grid-cols-2 gap-x-8 gap-y-2 w-full mt-2">
-                  <div className="text-sm text-gray-700 flex justify-between"><span className="font-semibold">Longevity:</span> <span className="font-bold">{getRating('Longevity')}/10</span></div>
-                  <div className="text-sm text-gray-700 flex justify-between"><span className="font-semibold">Projection:</span> <span className="font-bold">{getRating('Sillage')}/10</span></div>
-                  <div className="text-sm text-gray-700 flex justify-between"><span className="font-semibold">Versatility:</span> <span className="font-bold">{getRating('Versatility')}/10</span></div>
-                  <div className="text-sm text-gray-700 flex justify-between"><span className="font-semibold">Uniqueness:</span> <span className="font-bold">{getRating('Uniqueness')}/10</span></div>
-                  <div className="text-sm text-gray-700 flex justify-between"><span className="font-semibold">Value:</span> <span className="font-bold">{getRating('Value')}/10</span></div>
-                  <div className="text-sm text-gray-700 flex justify-between"><span className="font-semibold">Mass Appeal:</span> <span className="font-bold">{getRating('Mass Appeal')}/10</span></div>
+                <div className="grid grid-cols-2 gap-x-4 gap-y-2 w-full mt-2">
+                  <div className="text-xs sm:text-sm text-gray-700 flex justify-between"><span className="font-semibold">Longevity:</span> <span className="font-bold">{getRating('Longevity')}/10</span></div>
+                  <div className="text-xs sm:text-sm text-gray-700 flex justify-between"><span className="font-semibold">Projection:</span> <span className="font-bold">{getRating('Sillage')}/10</span></div>
+                  <div className="text-xs sm:text-sm text-gray-700 flex justify-between"><span className="font-semibold">Versatility:</span> <span className="font-bold">{getRating('Versatility')}/10</span></div>
+                  <div className="text-xs sm:text-sm text-gray-700 flex justify-between"><span className="font-semibold">Uniqueness:</span> <span className="font-bold">{getRating('Uniqueness')}/10</span></div>
+                  <div className="text-xs sm:text-sm text-gray-700 flex justify-between"><span className="font-semibold">Value:</span> <span className="font-bold">{getRating('Value')}/10</span></div>
+                  <div className="text-xs sm:text-sm text-gray-700 flex justify-between"><span className="font-semibold">Mass Appeal:</span> <span className="font-bold">{getRating('Mass Appeal')}/10</span></div>
                 </div>
                 <a
                   href={purchaseUrl || undefined}
