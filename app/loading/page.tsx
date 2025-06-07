@@ -12,13 +12,12 @@ const steps = [
 export default function LoadingPage() {
   const router = useRouter();
   const [progress, setProgress] = useState([0, 0, 0]);
-  const [completed, setCompleted] = useState([false, false, false]);
   const [pulse, setPulse] = useState([false, false, false]);
-  const barDurations = [2800, 3500, 4200]; // ms, each bar fills at a different speed
-  const barDelays = [0, 200, 400]; // ms, small staggered start
+  const [completed, setCompleted] = useState([false, false, false]);
+
 
   useEffect(() => {
-    let timeouts: NodeJS.Timeout[] = [];
+    const timeouts: NodeJS.Timeout[] = [];
     // Bar 1: smooth fill
     setProgress([100, 0, 0]);
     timeouts.push(setTimeout(() => {
