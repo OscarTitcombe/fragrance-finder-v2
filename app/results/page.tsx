@@ -106,7 +106,8 @@ export default async function Results() {
                   href={purchaseUrl || undefined}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className={`block w-full bg-gradient-to-b from-neutral-900 to-neutral-800 text-white text-center py-5 rounded-xl font-semibold text-2xl mb-2 shadow-md hover:opacity-90 transition${!purchaseUrl ? ' opacity-50 pointer-events-none' : ''}`}
+                  className={`block w-full bg-gradient-to-b from-neutral-900 to-neutral-800 text-white text-center py-5 rounded-xl font-semibold text-2xl mb-2 shadow-md hover:opacity-90 transition active:scale-95${!purchaseUrl ? ' opacity-50 pointer-events-none' : ''}`}
+                  style={{ transition: 'box-shadow, transform 0.15s' }}
                   tabIndex={purchaseUrl ? 0 : -1}
                   aria-disabled={!purchaseUrl}
                 >

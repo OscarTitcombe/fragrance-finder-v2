@@ -2,7 +2,7 @@
 
 import { useParams, useRouter } from 'next/navigation';
 import { useQuiz } from '@/lib/useQuiz';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 
 export default function QuizStep() {
   const params = useParams();
@@ -25,6 +25,10 @@ export default function QuizStep() {
   const [selected, setSelected] = useState<string | null>(
     answers[currentQuestion?.id ?? ""] || null
   );
+  const [animateOut, setAnimateOut] = useState(false); // For fade/slide
+  const [shake, setShake] = useState(false); // For shake on invalid
+  const [progressPulse, setProgressPulse] = useState(false); // For progress bar pulse
+  const prevStep = useRef(step);
 
   // Clear answers when starting a new quiz (step 1)
   useEffect(() => {
@@ -38,6 +42,25 @@ export default function QuizStep() {
     setSelected(answers[currentQuestion?.id ?? ""] || null);
   }, [currentQuestion, answers]);
 
+  // Animate question transition on step change
+  useEffect(() => {
+    if (prevStep.current !== step) {
+      setAnimateOut(true);
+      setTimeout(() => {
+        setAnimateOut(false);
+      }, 350);
+    }
+    prevStep.current = step;
+  }, [step]);
+
+  // Progress bar pulse on step change
+  useEffect(() => {
+    if (prevStep.current !== step) {
+      setProgressPulse(true);
+      setTimeout(() => setProgressPulse(false), 400);
+    }
+  }, [step]);
+
   // Handle answer selection
   const handleSelect = (value: string) => {
     setSelected(value);
@@ -45,7 +68,11 @@ export default function QuizStep() {
 
   // Handle Next button
   const handleNext = () => {
-    if (!currentQuestion || !selected) return;
+    if (!currentQuestion || !selected) {
+      setShake(true);
+      setTimeout(() => setShake(false), 400);
+      return;
+    }
     setAnswer(currentQuestion.id, selected);
     if (step === totalQuestions) {
       const updatedAnswers = { ...answers, [currentQuestion.id]: selected };
@@ -88,7 +115,7 @@ export default function QuizStep() {
         <div className="w-full mt-4">
           <div className="w-full h-2 bg-neutral-200 rounded-full overflow-hidden">
             <div
-              className="h-full transition-all duration-300"
+              className={`h-full transition-all duration-500 ${progressPulse ? 'animate-pulse-bar' : ''}`}
               style={{ width: `${progress}%`, background: '#228B22' }}
             />
           </div>
@@ -98,31 +125,33 @@ export default function QuizStep() {
         </div>
 
         {/* Question */}
-        <div>
+        <div className={`transition-all duration-500 ${animateOut ? 'opacity-0 translate-y-4' : 'opacity-100 translate-y-0'} ${shake ? 'animate-shake' : ''}`}>
           <h2 className="text-xl sm:text-2xl font-semibold text-center mb-2">
             {currentQuestion.question}
           </h2>
-        </div>
 
-        {/* Answer options as cards */}
-        <div className="flex flex-col gap-4">
-          {currentQuestion.options.map((option) => {
-            const isSelected = selected === option.value;
-            return (
-              <button
-                key={option.value}
-                type="button"
-                onClick={() => handleSelect(option.value)}
-                className={`w-full text-left rounded-xl border px-5 py-4 font-medium text-base shadow-sm transition-all
-                  ${isSelected
-                    ? "border-[#388e3c] bg-[#f3f7f3] text-green-900 ring-2 ring-[#388e3c]"
-                    : "border-neutral-200 bg-transparent hover:border-[#388e3c] hover:bg-[#f3f7f3]"}
-                `}
-              >
-                {option.label}
-              </button>
-            );
-          })}
+          {/* Answer options as cards */}
+          <div className="flex flex-col gap-4">
+            {currentQuestion.options.map((option) => {
+              const isSelected = selected === option.value;
+              return (
+                <button
+                  key={option.value}
+                  type="button"
+                  onClick={() => handleSelect(option.value)}
+                  className={`w-full text-left rounded-xl border px-5 py-4 font-medium text-base shadow-sm transition-all duration-200
+                    hover:scale-101 hover:shadow-sm active:scale-98
+                    ${isSelected
+                      ? "border-[#388e3c] bg-[#f3f7f3] text-green-900 ring-2 ring-[#388e3c]"
+                      : "border-neutral-200 bg-transparent hover:border-[#388e3c] hover:bg-[#f3f7f3]"}
+                  `}
+                  style={{ transitionProperty: 'box-shadow, transform, border, background' }}
+                >
+                  {option.label}
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         {/* Navigation buttons */}
@@ -130,27 +159,27 @@ export default function QuizStep() {
           <button
             onClick={handleBack}
             disabled={step === 1}
-            className={`flex-1 py-4 rounded-xl font-semibold text-base transition-colors
+            className={`flex-1 py-4 rounded-xl font-semibold text-base transition-colors active:scale-95
               bg-neutral-200 text-black hover:bg-neutral-300 disabled:bg-neutral-100 disabled:text-neutral-400 shadow-md`}
-            style={{ boxShadow: '0 2px 8px 0 rgba(0,0,0,0.18)' }}
+            style={{ boxShadow: '0 2px 8px 0 rgba(0,0,0,0.18)', transition: 'box-shadow, transform 0.15s' }}
           >
             Back
           </button>
           <button
             onClick={handleNext}
             disabled={!selected}
-            className={`flex-1 py-4 rounded-xl font-semibold text-base transition-colors
+            className={`flex-1 py-4 rounded-xl font-semibold text-base transition-colors active:scale-95
               bg-gradient-to-b from-black via-neutral-900 via-70% to-neutral-700 text-white hover:from-neutral-900 hover:to-neutral-600 shadow-lg
               ${!selected ? 'opacity-50 cursor-not-allowed' : 'opacity-100'}`}
-            style={{ boxShadow: '0 2px 8px 0 rgba(0,0,0,0.28)' }}
+            style={{ boxShadow: '0 2px 8px 0 rgba(0,0,0,0.28)', transition: 'box-shadow, transform 0.15s' }}
           >
             Next
           </button>
         </div>
         <button
           onClick={handleSkip}
-          className="w-full py-2 rounded-lg font-semibold text-base border border-neutral-200 bg-white text-black hover:bg-neutral-100 transition-all mb-4 mt-0 shadow-md text-center"
-          style={{ fontWeight: 500, fontSize: '15px', minHeight: 'unset', boxShadow: '0 2px 8px 0 rgba(0,0,0,0.18)' }}
+          className="w-full py-2 rounded-lg font-semibold text-base border border-neutral-200 bg-white text-black hover:bg-neutral-100 transition-all mb-4 mt-0 shadow-md text-center active:scale-95"
+          style={{ fontWeight: 500, fontSize: '15px', minHeight: 'unset', boxShadow: '0 2px 8px 0 rgba(0,0,0,0.18)', transition: 'box-shadow, transform 0.15s' }}
         >
           Skip to Results
         </button>
