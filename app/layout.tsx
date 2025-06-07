@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google'
 import Link from 'next/link'
 import { cn } from '@/lib/utils'
 import Script from 'next/script'
+import { Analytics } from '@vercel/analytics/next'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -27,6 +28,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           src="https://www.anrdoezrs.net/am/101457651/include/allCj/impressions/page/am.js"
           strategy="afterInteractive"
         />
+        <Analytics />
       </body>
     </html>
   )
