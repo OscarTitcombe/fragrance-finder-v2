@@ -57,6 +57,13 @@ export default function QuizStep() {
     }
   };
 
+  // Handle Back button
+  const handleBack = () => {
+    if (step > 1) {
+      router.push(`/quiz/${step - 1}`);
+    }
+  };
+
   // Handle Skip to Results
   const handleSkip = () => {
     const tagArray = Object.values(answers);
@@ -81,8 +88,8 @@ export default function QuizStep() {
         <div className="w-full mt-4">
           <div className="w-full h-2 bg-neutral-200 rounded-full overflow-hidden">
             <div
-              className="h-full bg-green-500 transition-all duration-300"
-              style={{ width: `${progress}%` }}
+              className="h-full transition-all duration-300"
+              style={{ width: `${progress}%`, background: '#228B22' }}
             />
           </div>
           <div className="text-xs text-gray-500 mt-2 text-right">
@@ -108,8 +115,8 @@ export default function QuizStep() {
                 onClick={() => handleSelect(option.value)}
                 className={`w-full text-left rounded-xl border px-5 py-4 font-medium text-base shadow-sm transition-all
                   ${isSelected
-                    ? "border-green-500 bg-green-50 text-green-900 ring-2 ring-green-400"
-                    : "border-neutral-200 bg-transparent hover:border-green-400 hover:bg-green-50"}
+                    ? "border-[#388e3c] bg-[#f3f7f3] text-green-900 ring-2 ring-[#388e3c]"
+                    : "border-neutral-200 bg-transparent hover:border-[#388e3c] hover:bg-[#f3f7f3]"}
                 `}
               >
                 {option.label}
@@ -119,22 +126,34 @@ export default function QuizStep() {
         </div>
 
         {/* Navigation buttons */}
-        <div className="flex flex-col sm:flex-row gap-4 mb-4">
+        <div className="flex flex-row gap-4 mb-2">
+          <button
+            onClick={handleBack}
+            disabled={step === 1}
+            className={`flex-1 py-4 rounded-xl font-semibold text-base transition-colors
+              bg-neutral-200 text-black hover:bg-neutral-300 disabled:bg-neutral-100 disabled:text-neutral-400 shadow-md`}
+            style={{ boxShadow: '0 2px 8px 0 rgba(0,0,0,0.18)' }}
+          >
+            Back
+          </button>
           <button
             onClick={handleNext}
             disabled={!selected}
-            className={`flex-1 py-4 rounded-xl font-semibold text-base shadow transition-colors
-              bg-black text-white hover:bg-neutral-800 disabled:bg-neutral-300 disabled:text-neutral-500`}
+            className={`flex-1 py-4 rounded-xl font-semibold text-base transition-colors
+              bg-gradient-to-b from-black via-neutral-900 via-70% to-neutral-700 text-white hover:from-neutral-900 hover:to-neutral-600 shadow-lg
+              ${!selected ? 'opacity-50 cursor-not-allowed' : 'opacity-100'}`}
+            style={{ boxShadow: '0 2px 8px 0 rgba(0,0,0,0.28)' }}
           >
             Next
           </button>
-          <button
-            onClick={handleSkip}
-            className="flex-1 py-4 rounded-xl font-semibold text-base shadow border border-neutral-200 bg-white text-black hover:bg-neutral-100"
-          >
-            Skip to Results
-          </button>
         </div>
+        <button
+          onClick={handleSkip}
+          className="w-full py-2 rounded-lg font-semibold text-base border border-neutral-200 bg-white text-black hover:bg-neutral-100 transition-all mb-4 mt-0 shadow-md text-center"
+          style={{ fontWeight: 500, fontSize: '15px', minHeight: 'unset', boxShadow: '0 2px 8px 0 rgba(0,0,0,0.18)' }}
+        >
+          Skip to Results
+        </button>
       </div>
     </main>
   );
