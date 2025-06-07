@@ -1,6 +1,9 @@
+'use client';
+
 import { getMatchingFragrances } from '@/lib/airtable';
-import { cookies } from 'next/headers';
 import Image from 'next/image';
+import { insertQuizResponse } from '@/lib/supabase';
+import { useEffect, useState } from 'react';
 
 // Fallback mock tags if no cookie is present
 const mockTags = [
@@ -25,6 +28,8 @@ interface FragranceFields {
 }
 
 interface Fragrance {
+  id: string;
+  frag_number: number;
   title: string;
   description: string;
   tags: string[];
@@ -36,18 +41,51 @@ interface Fragrance {
   relevance: number;
 }
 
-export default async function Results() {
-  // Read the quiz_tags cookie
-  const cookieStore = await cookies();
-  const quizTagsCookie = cookieStore.get('quiz_tags');
-  
-  // Parse the cookie value or use mock data
-  const tags: string[] = quizTagsCookie 
-    ? JSON.parse(quizTagsCookie.value)
-    : mockTags;
+export default function Results() {
+  const [fragrances, setFragrances] = useState<Fragrance[]>([]);
+  const [tags, setTags] = useState<string[]>(mockTags);
 
-  // Fetch fragrances using the tags
-  const fragrances: Fragrance[] = await getMatchingFragrances(tags);
+  // Fetch fragrances on mount
+  useEffect(() => {
+    const fetchData = async () => {
+      // Get tags from cookie
+      const cookies = document.cookie.split(';');
+      const quizTagsCookie = cookies.find(c => c.trim().startsWith('quiz_tags='));
+      const quizTags = quizTagsCookie 
+        ? JSON.parse(decodeURIComponent(quizTagsCookie.split('=')[1]))
+        : mockTags;
+      
+      setTags(quizTags);
+      
+      // Fetch fragrances
+      const fragrances = await getMatchingFragrances(quizTags);
+      setFragrances(fragrances);
+    };
+
+    fetchData();
+  }, []);
+
+  // Insert quiz response into Supabase when fragrances are loaded
+  useEffect(() => {
+    if (fragrances.length > 0) {
+      const quizAnswers = JSON.parse(localStorage.getItem('quiz_answers') || '{}');
+      const topFragranceIds = fragrances.slice(0, 3).map(f => f.frag_number);
+      
+      insertQuizResponse({
+        gender: quizAnswers.gender || '',
+        age_group: quizAnswers.age || '',
+        usage: quizAnswers.usage || '',
+        scent_profile: quizAnswers.profile || '',
+        intensity: quizAnswers.intensity || '',
+        seasonality: [quizAnswers.season || ''],
+        avoidance: quizAnswers.avoid ? [quizAnswers.avoid] : [],
+        longevity: quizAnswers.longevity || '',
+        budget: quizAnswers.budget || '',
+        brand_type: quizAnswers.brand || '',
+        top_fragrance_ids: topFragranceIds
+      });
+    }
+  }, [fragrances]);
 
   return (
     <main className="min-h-screen flex flex-col items-start px-1 pt-4 font-jakarta w-full">

@@ -1,3 +1,5 @@
+'use client';
+
 console.log("Loaded ENV:", {
   AIRTABLE_PAT: process.env.AIRTABLE_PAT,
   AIRTABLE_BASE_ID: process.env.AIRTABLE_BASE_ID,
@@ -23,6 +25,7 @@ interface AirtableFields {
   Value?: number;
   link_global?: string;
   MoreInfo?: string;
+  frag_number?: number;
   [key: string]: unknown;
 }
 
@@ -36,6 +39,8 @@ interface AirtableResponse {
 }
 
 interface Fragrance {
+  id: string;
+  frag_number: number;
   title: string;
   description: string;
   tags: string[];
@@ -78,18 +83,18 @@ export async function getMatchingFragrances(tags: string[]): Promise<Fragrance[]
   const maxScore = 75;
 
   // Validate environment variables
-  if (!process.env.AIRTABLE_PAT) throw new Error('AIRTABLE_PAT is not configured');
-  if (!process.env.AIRTABLE_BASE_ID) throw new Error('AIRTABLE_BASE_ID is not configured');
-  if (!process.env.AIRTABLE_TABLE_NAME) throw new Error('AIRTABLE_TABLE_NAME is not configured');
+  if (!process.env.NEXT_PUBLIC_AIRTABLE_PAT) throw new Error('NEXT_PUBLIC_AIRTABLE_PAT is not configured');
+  if (!process.env.NEXT_PUBLIC_AIRTABLE_BASE_ID) throw new Error('NEXT_PUBLIC_AIRTABLE_BASE_ID is not configured');
+  if (!process.env.NEXT_PUBLIC_AIRTABLE_TABLE_NAME) throw new Error('NEXT_PUBLIC_AIRTABLE_TABLE_NAME is not configured');
 
-  const baseId = process.env.AIRTABLE_BASE_ID;
-  const tableName = process.env.AIRTABLE_TABLE_NAME;
+  const baseId = process.env.NEXT_PUBLIC_AIRTABLE_BASE_ID;
+  const tableName = process.env.NEXT_PUBLIC_AIRTABLE_TABLE_NAME;
   const apiUrl = `https://api.airtable.com/v0/${baseId}/${tableName}`;
 
   try {
     const response = await fetch(apiUrl, {
       headers: {
-        'Authorization': `Bearer ${process.env.AIRTABLE_PAT}`,
+        'Authorization': `Bearer ${process.env.NEXT_PUBLIC_AIRTABLE_PAT}`,
         'Content-Type': 'application/json',
       },
     });
@@ -143,6 +148,8 @@ export async function getMatchingFragrances(tags: string[]): Promise<Fragrance[]
           : 0;
 
         return {
+          id: record.id,
+          frag_number: record.fields.frag_number || 0,
           title: record.fields.Title,
           description: record.fields.Description,
           tags: recordTags,
