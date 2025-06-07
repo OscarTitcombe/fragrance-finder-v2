@@ -68,8 +68,17 @@ export default function Results() {
   // Insert quiz response into Supabase when fragrances are loaded
   useEffect(() => {
     if (fragrances.length > 0) {
+      console.log('Fragrances loaded:', fragrances);
       const quizAnswers = JSON.parse(localStorage.getItem('quiz_answers') || '{}');
-      const topFragranceIds = fragrances.slice(0, 3).map(f => f.frag_number);
+      console.log('Quiz answers from localStorage:', quizAnswers);
+      
+      const topFragranceIds = fragrances.slice(0, 3).map(f => {
+        // Extract number from "frag_89" format and convert to integer
+        const fragNumber = parseInt(f.frag_number.toString().replace('frag_', ''));
+        console.log('Converting frag_number:', f.frag_number, 'to:', fragNumber);
+        return fragNumber;
+      });
+      console.log('Top fragrance IDs:', topFragranceIds);
       
       insertQuizResponse({
         gender: quizAnswers.gender || '',
