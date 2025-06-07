@@ -122,3 +122,33 @@
     font-family: 'Inter', 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
   }
 }
+
+@keyframes bar-pulse {
+  0% { transform: scaleY(1); }
+  40% { transform: scaleY(1.18); }
+  100% { transform: scaleY(1); }
+}
+.animate-bar-pulse {
+  animation: bar-pulse 0.4s cubic-bezier(.36,.07,.19,.97) both;
+}
+.bar-green-transition {
+  background-image: linear-gradient(to right, #22c55e, #16a34a);
+  transition: background-image 0.3s;
+}
+
+.bar-green-fade {
+  position: relative;
+}
+.bar-green-fade::after {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; right: 0; bottom: 0;
+  background-image: linear-gradient(to right, #22c55e, #16a34a);
+  opacity: 0;
+  animation: green-fade-in 0.6s forwards;
+  border-radius: inherit;
+  z-index: 1;
+}
+@keyframes green-fade-in {
+  to { opacity: 1; }
+}
