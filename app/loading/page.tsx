@@ -12,8 +12,8 @@ const steps = [
 export default function LoadingPage() {
   const router = useRouter();
   const [progress, setProgress] = useState([0, 0, 0]);
-  const [pulse, setPulse] = useState([false, false, false]);
-  const [completed, setCompleted] = useState([false, false, false]);
+  const [, setPulse] = useState([false, false, false]);
+  const [, setCompleted] = useState([false, false, false]);
 
 
   useEffect(() => {
