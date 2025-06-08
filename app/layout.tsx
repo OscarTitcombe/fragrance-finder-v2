@@ -24,6 +24,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </header>
         <div className="h-16" /> {/* Spacer for fixed navbar */}
         <main className="pt-4 max-w-3xl mx-auto p-6">{children}</main>
+        <footer className="w-full bg-neutral-100 border-t border-gray-200 text-xs text-gray-600 flex flex-col items-center justify-center px-4 py-3 mt-12">
+          <span className="mb-2">© 2025 Fragrance Finder</span>
+          <div className="flex flex-row gap-4">
+            <Link href="/terms" className="hover:underline">Terms &amp; Conditions</Link>
+            <Link href="/privacy" className="hover:underline">Privacy Policy</Link>
+            <Link href="/about" className="hover:underline">About</Link>
+          </div>
+        </footer>
         <Script
           src="https://www.anrdoezrs.net/am/101457651/include/allCj/impressions/page/am.js"
           strategy="afterInteractive"
