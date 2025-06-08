@@ -17,7 +17,7 @@ export default function LoadingPage() {
 
 
   useEffect(() => {
-    let timeouts: NodeJS.Timeout[] = [];
+    const timeouts: NodeJS.Timeout[] = [];
     // Bar 1: smooth fill
     setProgress([100, 0, 0]);
     timeouts.push(setTimeout(() => {
