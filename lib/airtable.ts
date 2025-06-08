@@ -38,7 +38,7 @@ interface AirtableResponse {
   records: AirtableRecord[];
 }
 
-interface Fragrance {
+interface DisplayFragrance {
   id: string;
   frag_number: number;
   title: string;
@@ -50,9 +50,11 @@ interface Fragrance {
   fields: AirtableFields;
   score: number;
   relevance: number;
+  rawMatchScore: number;
+  displayMatch: number;
 }
 
-export async function getMatchingFragrances(tags: string[]): Promise<any[]> {
+export async function getMatchingFragrances(tags: string[]): Promise<DisplayFragrance[]> {
   // Normalize quiz tags
   const quizTags = tags.map(t => t.toLowerCase().trim());
 
@@ -169,7 +171,7 @@ export async function getMatchingFragrances(tags: string[]): Promise<any[]> {
           displayMatch,
         };
       })
-      .filter((f): f is any => f !== null)
+      .filter((f): f is DisplayFragrance => f !== null)
       .sort((a, b) => b.rawMatchScore - a.rawMatchScore)
       .slice(0, 15);
 
