@@ -52,7 +52,7 @@ interface Fragrance {
   relevance: number;
 }
 
-export async function getMatchingFragrances(tags: string[]): Promise<Fragrance[]> {
+export async function getMatchingFragrances(tags: string[]): Promise<any[]> {
   // Normalize quiz tags
   const quizTags = tags.map(t => t.toLowerCase().trim());
 
@@ -131,7 +131,8 @@ export async function getMatchingFragrances(tags: string[]): Promise<Fragrance[]
 
         // Clamp score
         score = Math.max(0, Math.min(maxScore, score));
-        const relevance = Math.round((score / maxScore) * 100);
+        const rawMatchScore = score / maxScore;
+        const displayMatch = Math.round(60 + rawMatchScore * 40);
 
         // Calculate average score from all rating fields
         const ratings = [
@@ -163,15 +164,14 @@ export async function getMatchingFragrances(tags: string[]): Promise<Fragrance[]
           avgScore,
           fields: record.fields,
           score,
-          relevance,
+          relevance: Math.round(rawMatchScore * 100),
+          rawMatchScore,
+          displayMatch,
         };
       })
-      .filter((f): f is Fragrance => f !== null)
-      .sort((a: Fragrance, b: Fragrance) => {
-        if (b.relevance !== a.relevance) return b.relevance - a.relevance;
-        return b.avgScore - a.avgScore;
-      })
-      .slice(0, 30);
+      .filter((f): f is any => f !== null)
+      .sort((a, b) => b.rawMatchScore - a.rawMatchScore)
+      .slice(0, 15);
 
     return results;
   } catch (error) {

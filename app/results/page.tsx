@@ -39,6 +39,7 @@ interface Fragrance {
   fields: FragranceFields;
   score: number;
   relevance: number;
+  displayMatch: number;
 }
 
 const disclosureText = 'We may earn a commission when you click links and make purchases. As an affiliate, we only recommend products we believe in. This helps support our work, at no extra cost to you.';
@@ -157,12 +158,12 @@ export default function Results() {
               const val = fields[key];
               return typeof val === 'number' && !isNaN(val) ? val : 0;
             };
-            const relevance = typeof fragrance.relevance === 'number' ? fragrance.relevance : 0;
+            const displayMatch = typeof fragrance.displayMatch === 'number' ? fragrance.displayMatch : 0;
             const purchaseUrl = typeof fields['link_global'] === 'string' ? fields['link_global'] as string : '';
             return (
               <div key={index} className="bg-white rounded-2xl shadow-lg p-8 space-y-5 flex flex-col items-stretch relative max-w-md mx-auto border border-gray-100">
                 <div className="flex items-center justify-between mb-2 w-full">
-                  <div className="text-lg text-gray-700 font-bold text-left">Match: {relevance.toFixed(1)}%</div>
+                  <div className="text-lg text-gray-700 font-bold text-left">Match: {displayMatch}%</div>
                   <div className="relative group ml-2">
                     <div className="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center cursor-help">
                       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4 text-gray-600">
