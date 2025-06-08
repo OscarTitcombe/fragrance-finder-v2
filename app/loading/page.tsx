@@ -17,37 +17,30 @@ export default function LoadingPage() {
 
 
   useEffect(() => {
-    const timeouts: NodeJS.Timeout[] = [];
+    let timeouts: NodeJS.Timeout[] = [];
     // Bar 1: smooth fill
     setProgress([100, 0, 0]);
     timeouts.push(setTimeout(() => {
-      setTimeout(() => {
-        setPulse([true, false, false]);
-        setTimeout(() => setPulse([false, false, false]), 400);
-      }, 350);
+      setPulse([true, false, false]);
+      setTimeout(() => setPulse([false, false, false]), 400);
       // Bar 2: fill to 50% slowly
       setProgress([100, 50, 0]);
-    }, 2800));
-    // Bar 2: fill to 100% quickly
-    timeouts.push(setTimeout(() => {
-      setProgress([100, 100, 0]);
-      setTimeout(() => {
+      timeouts.push(setTimeout(() => {
+        setProgress([100, 100, 0]);
         setCompleted([true, true, false]);
         setPulse([false, true, false]);
         setTimeout(() => setPulse([false, false, false]), 400);
-      }, 350);
-    }, 2800 + 1800));
-    // Bar 3: smooth fill
-    timeouts.push(setTimeout(() => {
-      setProgress([100, 100, 100]);
-      setTimeout(() => {
-        setCompleted([true, true, true]);
-        setPulse([false, false, true]);
-        setTimeout(() => setPulse([false, false, false]), 400);
-      }, 350);
-    }, 2800 + 1800 + 2200));
-    // Redirect after all bars are filled
-    timeouts.push(setTimeout(() => router.push("/results"), 2800 + 1800 + 2200 + 1200));
+        // Bar 3: smooth fill
+        timeouts.push(setTimeout(() => {
+          setProgress([100, 100, 100]);
+          setCompleted([true, true, true]);
+          setPulse([false, false, true]);
+          setTimeout(() => setPulse([false, false, false]), 400);
+          // Redirect after all bars are filled and pulse is done
+          timeouts.push(setTimeout(() => router.push("/results"), 2200 + 400));
+        }, 2200));
+      }, 900)); // 900ms for bar 2 to fill from 50% to 100%
+    }, 2200)); // 2200ms for bar 1 to fill
     return () => timeouts.forEach(clearTimeout);
   }, [router]);
 
