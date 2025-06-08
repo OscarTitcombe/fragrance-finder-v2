@@ -21,7 +21,7 @@ export default function QuizStep() {
   const currentQuestion = getCurrentQuestion(step);
   const progress = getProgress(step);
 
-  const isMulti = !!currentQuestion.multi;
+  const isMulti = !!currentQuestion?.multi;
 
   // Local state for selected answer(s)
   const [selected, setSelected] = useState<string[] | string | null>(
@@ -83,7 +83,11 @@ export default function QuizStep() {
       setTimeout(() => setShake(false), 400);
       return;
     }
-    setAnswer(currentQuestion.id, selected);
+    if (isMulti) {
+      setAnswer(currentQuestion.id, Array.isArray(selected) ? selected : []);
+    } else {
+      setAnswer(currentQuestion.id, typeof selected === 'string' ? selected : '');
+    }
     if (step === totalQuestions) {
       const updatedAnswers = { ...answers, [currentQuestion.id]: selected };
       // Flatten all answers to a tag array for the cookie

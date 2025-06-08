@@ -32,7 +32,7 @@ export function useQuiz() {
   const [answers, setAnswers] = useState<QuizAnswers>(getStoredAnswers);
 
   // Memoize setAnswer to prevent unnecessary re-renders
-  const setAnswer = useCallback((id: string, value: string) => {
+  const setAnswer = useCallback((id: string, value: string | string[]) => {
     setAnswers(prev => {
       const updated = {
         ...prev,
