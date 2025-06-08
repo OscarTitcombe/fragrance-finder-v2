@@ -23,7 +23,7 @@ export default function Privacy() {
               <li>Provide personalized fragrance recommendations</li>
               <li>Improve our recommendation algorithm and overall experience</li>
               <li>Understand broader fragrance preferences and user trends</li>
-              <li>(If applicable) Send occasional updates, offers, or insights if you've opted in</li>
+              <li>(If applicable) Send occasional updates, offers, or insights if you&apos;ve opted in</li>
             </ul>
             <p className="mt-2">We may share anonymized and aggregated data (e.g. “40% of users aged 18–25 prefer fresh citrus scents”) with trusted third-party partners and clients, such as fragrance brands, trend analysts, or retail platforms.</p>
             <p>This data cannot be used to identify you and contains no personal information like your name or email.</p>
@@ -52,7 +52,7 @@ export default function Privacy() {
           </li>
           <li>
             <strong>Changes to This Policy</strong><br />
-            We may update this Privacy Policy from time to time. We'll notify you of any significant changes via our website or other communication methods.
+            We may update this Privacy Policy from time to time. We&apos;ll notify you of any significant changes via our website or other communication methods.
           </li>
           <li>
             <strong>Contact Us</strong><br />
