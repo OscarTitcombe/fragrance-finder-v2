@@ -4,6 +4,7 @@ import { getMatchingFragrances } from '@/lib/airtable';
 import Image from 'next/image';
 import { insertQuizResponse } from '@/lib/supabase';
 import { useEffect, useState } from 'react';
+import { track } from '@vercel/analytics';
 
 // Fallback mock tags if no cookie is present
 const mockTags = [
@@ -202,6 +203,7 @@ export default function Results() {
                   href={purchaseUrl || undefined}
                   target="_blank"
                   rel="noopener noreferrer"
+                  onClick={() => track('best_prices_click', { fragrance: fragrance.title, id: fragrance.frag_number })}
                   className={`block w-full bg-gradient-to-b from-neutral-900 to-neutral-800 text-white text-center py-5 rounded-xl font-semibold text-2xl mb-2 shadow-md hover:opacity-90 transition active:scale-95${!purchaseUrl ? ' opacity-50 pointer-events-none' : ''}`}
                   style={{ transition: 'box-shadow, transform 0.15s' }}
                   tabIndex={purchaseUrl ? 0 : -1}

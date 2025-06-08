@@ -3,6 +3,7 @@
 import { useParams, useRouter } from 'next/navigation';
 import { useQuiz } from '@/lib/useQuiz';
 import { useEffect, useState, useRef } from 'react';
+import { track } from '@vercel/analytics';
 
 export default function QuizStep() {
   const params = useParams();
@@ -89,6 +90,7 @@ export default function QuizStep() {
       setAnswer(currentQuestion.id, typeof selected === 'string' ? selected : '');
     }
     if (step === totalQuestions) {
+      track('quiz_completed');
       const updatedAnswers = { ...answers, [currentQuestion.id]: selected };
       // Flatten all answers to a tag array for the cookie
       const tagArray = Object.values(updatedAnswers).flat();
@@ -108,6 +110,7 @@ export default function QuizStep() {
 
   // Handle Skip to Results
   const handleSkip = () => {
+    track('quiz_completed');
     const tagArray = Object.values(answers).flat();
     document.cookie = `quiz_tags=${JSON.stringify(tagArray)}; path=/; max-age=3600`;
     window.location.href = '/loading';
