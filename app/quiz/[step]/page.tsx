@@ -21,9 +21,11 @@ export default function QuizStep() {
   const currentQuestion = getCurrentQuestion(step);
   const progress = getProgress(step);
 
-  // Local state for selected answer for immediate feedback
-  const [selected, setSelected] = useState<string | null>(
-    answers[currentQuestion?.id ?? ""] || null
+  const isMulti = !!currentQuestion.multi;
+
+  // Local state for selected answer(s)
+  const [selected, setSelected] = useState<string[] | string | null>(
+    answers[currentQuestion?.id ?? ""] || (isMulti ? [] : null)
   );
   const [animateOut, setAnimateOut] = useState(false); // For fade/slide
   const [shake, setShake] = useState(false); // For shake on invalid
@@ -39,8 +41,8 @@ export default function QuizStep() {
 
   // Update selected state if answers change (e.g., on back/forward navigation)
   useEffect(() => {
-    setSelected(answers[currentQuestion?.id ?? ""] || null);
-  }, [currentQuestion, answers]);
+    setSelected(answers[currentQuestion?.id ?? ""] || (isMulti ? [] : null));
+  }, [currentQuestion, answers, isMulti]);
 
   // Animate question transition on step change
   useEffect(() => {
@@ -63,12 +65,20 @@ export default function QuizStep() {
 
   // Handle answer selection
   const handleSelect = (value: string) => {
-    setSelected(value);
+    if (isMulti) {
+      setSelected(prev => {
+        const arr = Array.isArray(prev) ? prev : [];
+        return arr.includes(value) ? arr.filter(v => v !== value) : [...arr, value];
+      });
+    } else {
+      setSelected(value);
+    }
   };
 
   // Handle Next button
+  const isAnswered = isMulti ? Array.isArray(selected) && selected.length > 0 : !!selected;
   const handleNext = () => {
-    if (!currentQuestion || !selected) {
+    if (!currentQuestion || !isAnswered) {
       setShake(true);
       setTimeout(() => setShake(false), 400);
       return;
@@ -76,7 +86,8 @@ export default function QuizStep() {
     setAnswer(currentQuestion.id, selected);
     if (step === totalQuestions) {
       const updatedAnswers = { ...answers, [currentQuestion.id]: selected };
-      const tagArray = Object.values(updatedAnswers);
+      // Flatten all answers to a tag array for the cookie
+      const tagArray = Object.values(updatedAnswers).flat();
       document.cookie = `quiz_tags=${JSON.stringify(tagArray)}; path=/; max-age=3600`;
       window.location.href = '/loading';
     } else {
@@ -93,7 +104,7 @@ export default function QuizStep() {
 
   // Handle Skip to Results
   const handleSkip = () => {
-    const tagArray = Object.values(answers);
+    const tagArray = Object.values(answers).flat();
     document.cookie = `quiz_tags=${JSON.stringify(tagArray)}; path=/; max-age=3600`;
     window.location.href = '/loading';
   };
@@ -133,7 +144,9 @@ export default function QuizStep() {
           {/* Answer options as cards */}
           <div className="flex flex-col gap-4">
             {currentQuestion.options.map((option) => {
-              const isSelected = selected === option.value;
+              const isSelected = isMulti
+                ? Array.isArray(selected) && selected.includes(option.value)
+                : selected === option.value;
               return (
                 <button
                   key={option.value}
@@ -167,10 +180,10 @@ export default function QuizStep() {
           </button>
           <button
             onClick={handleNext}
-            disabled={!selected}
+            disabled={!isAnswered}
             className={`flex-1 py-4 rounded-xl font-semibold text-base transition-colors active:scale-95
               bg-gradient-to-b from-black via-neutral-900 via-70% to-neutral-700 text-white hover:from-neutral-900 hover:to-neutral-600 shadow-lg
-              ${!selected ? 'opacity-50 cursor-not-allowed' : 'opacity-100'}`}
+              ${!isAnswered ? 'opacity-50 cursor-not-allowed' : 'opacity-100'}`}
             style={{ boxShadow: '0 2px 8px 0 rgba(0,0,0,0.28)', transition: 'box-shadow, transform 0.15s' }}
           >
             Next

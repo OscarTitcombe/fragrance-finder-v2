@@ -2,7 +2,7 @@ import { useState, useCallback } from 'react';
 import { quizQuestions } from './quizData';
 
 interface QuizAnswers {
-  [key: string]: string;
+  [key: string]: string | string[];
 }
 
 // Helper function to safely access localStorage
