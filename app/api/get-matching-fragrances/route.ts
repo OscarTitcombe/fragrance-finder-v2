@@ -32,9 +32,26 @@ interface AirtableResponse {
   records: AirtableRecord[];
 }
 
+interface Fragrance {
+  id: string;
+  frag_number: number;
+  title: string;
+  description: string;
+  tags: string[];
+  image: string;
+  matchCount: number;
+  avgScore: number;
+  fields: AirtableFields;
+  score: number;
+  relevance: number;
+  rawMatchScore: number;
+  displayMatch: number;
+}
+
 export async function POST(req: NextRequest) {
   try {
-    const { tags } = await req.json();
+    const body: Record<string, unknown> = await req.json();
+    const tags = Array.isArray(body.tags) ? (body.tags as string[]) : [];
     if (!Array.isArray(tags)) {
       return NextResponse.json({ results: [] }, { status: 200 });
     }
@@ -71,8 +88,8 @@ export async function POST(req: NextRequest) {
     });
     if (!response.ok) throw new Error(`Airtable API error: ${response.statusText}`);
     const data: AirtableResponse = await response.json();
-    const results = data.records
-      .map(record => {
+    const results: Fragrance[] = data.records
+      .map((record): Fragrance | null => {
         const recordTags = Array.isArray(record.fields.Tags)
           ? record.fields.Tags.map(tag => String(tag).toLowerCase().trim())
           : [];
@@ -128,7 +145,7 @@ export async function POST(req: NextRequest) {
           displayMatch,
         };
       })
-      .filter((f): f is any => f !== null)
+      .filter((f): f is Fragrance => f !== null)
       .sort((a, b) => b.rawMatchScore - a.rawMatchScore)
       .slice(0, 15);
     return NextResponse.json({ results }, { status: 200 });
