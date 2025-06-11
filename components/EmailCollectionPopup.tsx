@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { createClient } from '@supabase/supabase-js';
-import { sendQuizResultsEmail } from '@/lib/brevo';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -49,17 +48,27 @@ export default function EmailCollectionPopup({ onClose, onSuccess, fragrances, t
       if (updateError) throw updateError;
 
       // Send the quiz results email
-      await sendQuizResultsEmail({
-        to: email,
-        fragrances: fragrances.map(f => ({
-          title: f.title,
-          description: f.description,
-          image: f.image,
-          matchScore: f.displayMatch,
-          purchaseUrl: f.fields.link_global as string | undefined,
-        })),
-        tags,
+      const response = await fetch('/api/send-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          to: email,
+          fragrances: fragrances.map(f => ({
+            title: f.title,
+            description: f.description,
+            image: f.image,
+            matchScore: f.displayMatch,
+            purchaseUrl: f.fields.link_global as string | undefined,
+          })),
+          tags,
+        }),
       });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('Email API error:', errorData);
+        throw new Error(errorData.error || 'Failed to send email');
+      }
 
       // Store in localStorage to prevent showing popup again
       localStorage.setItem('email_collected', 'true');
