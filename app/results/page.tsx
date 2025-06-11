@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { insertQuizResponse } from '@/lib/supabase';
 import { useEffect, useState } from 'react';
 import { track } from '@vercel/analytics';
+import EmailCollectionPopup from '@/components/EmailCollectionPopup';
 
 // Fallback mock tags if no cookie is present
 const mockTags = [
@@ -25,6 +26,7 @@ interface FragranceFields {
   Uniqueness?: number;
   MassAppeal?: number;
   Value?: number;
+  link_global?: string;
   [key: string]: unknown;
 }
 
@@ -49,6 +51,7 @@ export default function Results() {
   const [fragrances, setFragrances] = useState<Fragrance[]>([]);
   const [tags, setTags] = useState<string[]>(mockTags);
   const [loading, setLoading] = useState(true);
+  const [showEmailPopup, setShowEmailPopup] = useState(false);
 
   // Fetch fragrances on mount
   useEffect(() => {
@@ -66,6 +69,12 @@ export default function Results() {
       const fragrances = await getMatchingFragrances(quizTags);
       setFragrances(fragrances);
       setLoading(false);
+
+      // Show email popup if email hasn't been collected yet
+      const emailCollected = localStorage.getItem('email_collected');
+      if (!emailCollected) {
+        setShowEmailPopup(true);
+      }
     };
 
     fetchData();
@@ -104,6 +113,14 @@ export default function Results() {
 
   return (
     <main className="min-h-screen flex flex-col items-start px-1 pt-4 font-jakarta w-full">
+      {showEmailPopup && (
+        <EmailCollectionPopup
+          onClose={() => setShowEmailPopup(false)}
+          onSuccess={() => setShowEmailPopup(false)}
+          fragrances={fragrances}
+          tags={tags}
+        />
+      )}
       <div className="w-full flex justify-between items-start mb-2">
         <h1 className="text-4xl font-semibold text-left">Recommended Fragrances</h1>
         <div className="relative group">

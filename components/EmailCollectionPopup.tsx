@@ -1,0 +1,114 @@
+import { useState } from 'react';
+import { createClient } from '@supabase/supabase-js';
+import { sendQuizResultsEmail } from '@/lib/brevo';
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
+
+interface EmailCollectionPopupProps {
+  onClose: () => void;
+  onSuccess: () => void;
+  fragrances: Array<{
+    title: string;
+    description: string;
+    image: string;
+    displayMatch: number;
+    fields: {
+      link_global?: string;
+    };
+  }>;
+  tags: string[];
+}
+
+export default function EmailCollectionPopup({ onClose, onSuccess, fragrances, tags }: EmailCollectionPopupProps) {
+  const [email, setEmail] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+
+    try {
+      // Get the quiz response ID from localStorage
+      const quizResponseId = localStorage.getItem('quiz_response_id');
+      
+      if (!quizResponseId) {
+        throw new Error('No quiz response found');
+      }
+
+      // Update the existing quiz response with the email
+      const { error: updateError } = await supabase
+        .from('quiz_responses')
+        .update({ email })
+        .eq('id', quizResponseId);
+
+      if (updateError) throw updateError;
+
+      // Send the quiz results email
+      await sendQuizResultsEmail({
+        to: email,
+        fragrances: fragrances.map(f => ({
+          title: f.title,
+          description: f.description,
+          image: f.image,
+          matchScore: f.displayMatch,
+          purchaseUrl: f.fields.link_global as string | undefined,
+        })),
+        tags,
+      });
+
+      // Store in localStorage to prevent showing popup again
+      localStorage.setItem('email_collected', 'true');
+      onSuccess();
+    } catch (err) {
+      setError('Failed to save email. Please try again.');
+      console.error('Error saving email:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-2xl p-8 max-w-md w-full shadow-xl">
+        <h2 className="text-2xl font-bold mb-4">Get Your Results</h2>
+        <p className="text-gray-600 mb-6">
+          Enter your email to receive your personalized fragrance recommendations and exclusive offers.
+        </p>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Enter your email"
+              required
+              className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-neutral-900"
+            />
+          </div>
+          {error && <p className="text-red-500 text-sm">{error}</p>}
+          <div className="flex gap-4">
+            <button
+              type="submit"
+              disabled={loading}
+              className="flex-1 bg-neutral-900 text-white py-3 rounded-lg font-semibold hover:opacity-90 transition disabled:opacity-50"
+            >
+              {loading ? 'Sending...' : 'Send Me My Results'}
+            </button>
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-6 py-3 rounded-lg border border-gray-300 hover:bg-gray-50 transition"
+            >
+              Skip
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+} 

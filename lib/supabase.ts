@@ -74,7 +74,7 @@ export async function insertQuizResponse(quizAnswers: {
     tags
   });
 
-  const { error } = await supabase.from('quiz_responses').insert([
+  const { data, error } = await supabase.from('quiz_responses').insert([
     {
       gender: quizAnswers.gender,
       age_group: quizAnswers.age_group,
@@ -90,11 +90,16 @@ export async function insertQuizResponse(quizAnswers: {
       user_country,
       tags
     }
-  ])
+  ]).select()
 
   if (error) {
     console.error('❌ Failed to insert quiz response:', error)
     return
+  }
+
+  // Store the quiz response ID in localStorage
+  if (data && data[0]) {
+    localStorage.setItem('quiz_response_id', data[0].id)
   }
 
   localStorage.setItem('quiz_submitted', 'true')
