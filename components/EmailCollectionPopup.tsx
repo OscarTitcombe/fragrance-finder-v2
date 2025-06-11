@@ -2,8 +2,8 @@ import { useState } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
 const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  process.env.SUPABASE_URL!,
+  process.env.SUPABASE_ANON_KEY!
 );
 
 interface EmailCollectionPopupProps {
@@ -34,18 +34,20 @@ export default function EmailCollectionPopup({ onClose, onSuccess, fragrances, t
     try {
       // Get the quiz response ID from localStorage
       const quizResponseId = localStorage.getItem('quiz_response_id');
-      
       if (!quizResponseId) {
         throw new Error('No quiz response found');
       }
 
-      // Update the existing quiz response with the email
-      const { error: updateError } = await supabase
-        .from('quiz_responses')
-        .update({ email })
-        .eq('id', quizResponseId);
-
-      if (updateError) throw updateError;
+      // Save the email to Supabase via API route
+      const saveRes = await fetch('/api/save-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ quizResponseId, email }),
+      });
+      if (!saveRes.ok) {
+        const errorData = await saveRes.json();
+        throw new Error(errorData.error || 'Failed to save email');
+      }
 
       // Send the quiz results email
       const response = await fetch('/api/send-email', {

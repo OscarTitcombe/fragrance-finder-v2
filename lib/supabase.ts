@@ -1,14 +1,11 @@
-'use client';
+console.log('Supabase URL:', process.env.SUPABASE_URL);
+console.log('Supabase Key exists:', !!process.env.SUPABASE_ANON_KEY);
 
 import { createClient } from '@supabase/supabase-js'
 
-// Debug logging for environment variables
-console.log('Supabase URL:', process.env.NEXT_PUBLIC_SUPABASE_URL);
-console.log('Supabase Key exists:', !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
-
 const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  process.env.SUPABASE_URL!,
+  process.env.SUPABASE_ANON_KEY!
 )
 
 async function getCountryFromIP(): Promise<string | null> {
