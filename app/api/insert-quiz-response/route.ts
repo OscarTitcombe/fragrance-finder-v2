@@ -88,6 +88,11 @@ export async function POST(req: NextRequest) {
       user_country = await getCountryFromIP(ip);
     }
     if (!user_country) user_country = 'unknown';
+    // Validate email
+    let email: string | null = null;
+    if (typeof body.email === 'string' && body.email.trim() !== '') {
+      email = body.email.trim();
+    }
     const supabase = createClient(
       process.env.SUPABASE_URL!,
       process.env.SUPABASE_ANON_KEY!
@@ -96,6 +101,7 @@ export async function POST(req: NextRequest) {
       ...body,
       tags,
       user_country,
+      email,
     };
     const { data, error } = await supabase.from('quiz_responses').insert([insertData]).select();
     if (error) {
