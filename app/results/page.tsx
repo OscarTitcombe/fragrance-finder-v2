@@ -1,8 +1,6 @@
 'use client';
 
-import { getMatchingFragrances } from '@/lib/airtable';
 import Image from 'next/image';
-import { insertQuizResponse } from '@/lib/supabase';
 import { useEffect, useState } from 'react';
 import { track } from '@vercel/analytics';
 import EmailCollectionPopup from '@/components/EmailCollectionPopup';
@@ -62,53 +60,63 @@ export default function Results() {
       const quizTags = quizTagsCookie 
         ? JSON.parse(decodeURIComponent(quizTagsCookie.split('=')[1]))
         : mockTags;
-      
       setTags(quizTags);
-      
       // Fetch fragrances
-      const fragrances = await getMatchingFragrances(quizTags);
+      const response = await fetch('/api/get-matching-fragrances', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ tags: quizTags })
+      });
+      const fragrances = await response.json();
       setFragrances(fragrances);
       setLoading(false);
-
       // Show email popup if email hasn't been collected yet
       const emailCollected = localStorage.getItem('email_collected');
       if (!emailCollected) {
         setShowEmailPopup(true);
       }
     };
-
     fetchData();
   }, []);
 
   // Insert quiz response into Supabase when fragrances are loaded
   useEffect(() => {
-    if (fragrances.length > 0) {
-      console.log('Fragrances loaded:', fragrances);
-      const quizAnswers = JSON.parse(localStorage.getItem('quiz_answers') || '{}');
-      console.log('Quiz answers from localStorage:', quizAnswers);
-      
-      const topFragranceIds = fragrances.slice(0, 3).map(f => {
-        // Extract number from "frag_89" format and convert to integer
-        const fragNumber = parseInt(f.frag_number.toString().replace('frag_', ''));
-        console.log('Converting frag_number:', f.frag_number, 'to:', fragNumber);
-        return fragNumber;
-      });
-      console.log('Top fragrance IDs:', topFragranceIds);
-      
-      insertQuizResponse({
-        gender: quizAnswers.gender || '',
-        age_group: quizAnswers.age || '',
-        usage: quizAnswers.usage || '',
-        scent_profile: quizAnswers.profile || '',
-        intensity: quizAnswers.intensity || '',
-        seasonality: [quizAnswers.season || ''],
-        avoidance: quizAnswers.avoid ? [quizAnswers.avoid] : [],
-        longevity: quizAnswers.longevity || '',
-        budget: quizAnswers.budget || '',
-        brand_type: quizAnswers.brand || '',
-        top_fragrance_ids: topFragranceIds
-      });
-    }
+    const insertQuiz = async () => {
+      if (fragrances.length > 0) {
+        console.log('Fragrances loaded:', fragrances);
+        const quizAnswers = JSON.parse(localStorage.getItem('quiz_answers') || '{}');
+        console.log('Quiz answers from localStorage:', quizAnswers);
+        const topFragranceIds = fragrances.slice(0, 3).map(f => {
+          // Extract number from "frag_89" format and convert to integer
+          const fragNumber = parseInt(f.frag_number.toString().replace('frag_', ''));
+          console.log('Converting frag_number:', f.frag_number, 'to:', fragNumber);
+          return fragNumber;
+        });
+        console.log('Top fragrance IDs:', topFragranceIds);
+        await fetch('/api/insert-quiz-response', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            gender: quizAnswers.gender || '',
+            age_group: quizAnswers.age || '',
+            usage: quizAnswers.usage || '',
+            scent_profile: quizAnswers.profile || '',
+            intensity: quizAnswers.intensity || '',
+            seasonality: [quizAnswers.season || ''],
+            avoidance: quizAnswers.avoid ? [quizAnswers.avoid] : [],
+            longevity: quizAnswers.longevity || '',
+            budget: quizAnswers.budget || '',
+            brand_type: quizAnswers.brand || '',
+            top_fragrance_ids: topFragranceIds
+          })
+        });
+      }
+    };
+    insertQuiz();
   }, [fragrances]);
 
   return (
