@@ -69,8 +69,14 @@ export default function Results() {
         },
         body: JSON.stringify({ tags: quizTags })
       });
-      const fragrances = await response.json();
-      setFragrances(fragrances);
+      let data;
+      try {
+        data = await response.json();
+      } catch {
+        data = {};
+      }
+      const results = Array.isArray(data.results) ? data.results : [];
+      setFragrances(results);
       setLoading(false);
       // Show email popup if email hasn't been collected yet
       const emailCollected = localStorage.getItem('email_collected');
@@ -172,9 +178,9 @@ export default function Results() {
             </div>
           ))}
         </div>
-      ) : fragrances.length === 0 ? (
+      ) : !Array.isArray(fragrances) || fragrances.length === 0 ? (
         <p className="text-base text-gray-600 text-center">
-          No matches found. Try adjusting your preferences.
+          No recommendations found.
         </p>
       ) : (
         <div className="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
