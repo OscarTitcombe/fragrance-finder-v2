@@ -1,28 +1,32 @@
 import { useState } from 'react';
 
-interface EmailCollectionPopupProps {
-  onClose: () => void;
-  onSuccess: () => void;
-  fragrances: Array<{
-    title: string;
-    description: string;
-    image: string;
-    displayMatch: number;
-    fields: {
-      link_global?: string;
-    };
-  }>;
-  tags: string[];
-  quizUuid: string | null;
+interface Fragrance {
+  title: string
+  description: string
+  image: string
+  displayMatch: number
+  fields: {
+    link_global?: string
+  }
 }
 
-export default function EmailCollectionPopup({ onClose, onSuccess, fragrances, tags, quizUuid }: EmailCollectionPopupProps) {
-  const [email, setEmail] = useState('');
-  const [agreed, setAgreed] = useState(false);
-  const [consentError, setConsentError] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState(false);
+interface Tag {
+  name: string
+}
+
+interface EmailCollectionPopupProps {
+  onSuccess: () => void
+  fragrances: Fragrance[]
+  tags: Tag[]
+  quizUuid: string
+}
+
+export default function EmailCollectionPopup({ onSuccess, fragrances, tags, quizUuid }: EmailCollectionPopupProps) {
+  const [email, setEmail] = useState('')
+  const [agreed, setAgreed] = useState(false)
+  const [consentError, setConsentError] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [error, setError] = useState('')
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
