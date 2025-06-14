@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import { track } from '@vercel/analytics';
 import EmailCollectionPopup from '@/components/EmailCollectionPopup';
+import { mockTags } from '@/lib/mockData';
 
 // Fallback mock tags if no cookie is present
 const mockTags = [
@@ -45,8 +46,8 @@ interface Fragrance {
 
 interface GeoLocation {
   country_name: string;
-  city: string | null;
-  region: string | null;
+  city: string;
+  region: string;
 }
 
 const disclosureText = 'We may earn a commission when you click links and make purchases. As an affiliate, we only recommend products we believe in. This helps support our work, at no extra cost to you.';
@@ -193,10 +194,13 @@ export default function Results() {
           {fragrances.map((fragrance, index) => (
             <div key={index} className="bg-white rounded-lg shadow-lg overflow-hidden">
               <div className="relative">
-                <img
+                <Image
                   src={fragrance.image}
                   alt={fragrance.title}
+                  width={400}
+                  height={400}
                   className="w-full h-64 object-cover"
+                  priority={index < 3}
                 />
                 <div className="absolute top-4 right-4 bg-white px-3 py-1 rounded-full text-sm font-medium">
                   {fragrance.displayMatch}% Match
