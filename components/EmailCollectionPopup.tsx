@@ -64,8 +64,8 @@ export default function EmailCollectionPopup({ quizUuid }: EmailCollectionPopupP
 
   if (isSubmitted) {
     return (
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-        <div className="bg-white rounded-lg p-6 max-w-md w-full mx-auto">
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+        <div className="bg-white rounded-lg p-6 max-w-md w-full mx-auto shadow-lg">
           <h2 className="text-xl font-semibold mb-4">Check Your Email</h2>
           <p className="text-gray-600 mb-4">
             We&apos;ve sent your personalized fragrance recommendations to your email address. Please check your inbox.
@@ -76,8 +76,8 @@ export default function EmailCollectionPopup({ quizUuid }: EmailCollectionPopupP
   }
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-lg p-6 max-w-md w-full mx-auto">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+      <div className="bg-white rounded-lg p-6 max-w-md w-full mx-auto shadow-lg">
         <h2 className="text-xl font-semibold mb-4">Get Your Personalized Recommendations</h2>
         <p className="text-gray-600 mb-4">
           Enter your email to receive your personalized fragrance recommendations and exclusive offers.
