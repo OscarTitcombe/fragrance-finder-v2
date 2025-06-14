@@ -117,6 +117,13 @@ export default function Results() {
           const data = await response.json();
           console.log('📦 Fetched fragrances:', data);
           setFragrances(data);
+
+          // Get quiz UUID from response
+          if (data.quizUuid) {
+            setQuizUuid(data.quizUuid);
+            // Show email popup if we have a UUID
+            setShowEmailPopup(true);
+          }
         } catch (error) {
           console.error('Error fetching fragrances:', error);
           setFragrances([]);
