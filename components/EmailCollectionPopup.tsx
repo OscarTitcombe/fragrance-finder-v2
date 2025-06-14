@@ -2,9 +2,11 @@ import { useState } from 'react';
 
 type EmailCollectionPopupProps = {
   quizUuid: string;
+  fragrances: any[];
+  tags: string[];
 };
 
-export default function EmailCollectionPopup({ quizUuid }: EmailCollectionPopupProps) {
+export default function EmailCollectionPopup({ quizUuid, fragrances, tags }: EmailCollectionPopupProps) {
   const [email, setEmail] = useState('');
   const [agreed, setAgreed] = useState(false);
   const [consentError, setConsentError] = useState('');
@@ -53,10 +55,18 @@ export default function EmailCollectionPopup({ quizUuid }: EmailCollectionPopupP
         throw new Error('Failed to save email');
       }
 
+      // Send results email
+      const sendRes = await fetch('/api/send-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ to: email, fragrances, tags }),
+      });
+      if (!sendRes.ok) throw new Error('Failed to send results email');
+
       setIsSubmitted(true);
     } catch (err) {
-      console.error('Error saving email:', err);
-      setError('Failed to save email. Please try again.');
+      console.error('Error saving or sending email:', err);
+      setError('Failed to save or send email. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
