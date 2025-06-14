@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
 export async function POST(req: NextRequest) {
-  const { quizResponseId, email } = await req.json();
+  const { quizResponseId, email, agreed_to_lead_terms } = await req.json();
 
   if (!quizResponseId || !email) {
     return NextResponse.json({ error: 'Missing quizResponseId or email' }, { status: 400 });
@@ -15,10 +15,14 @@ export async function POST(req: NextRequest) {
 
   const { error } = await supabase
     .from('quiz_responses')
-    .update({ email })
+    .update({ 
+      email,
+      agreed_to_lead_terms: agreed_to_lead_terms || false 
+    })
     .eq('id', quizResponseId);
 
   if (error) {
+    console.error('Failed to update quiz response:', error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
