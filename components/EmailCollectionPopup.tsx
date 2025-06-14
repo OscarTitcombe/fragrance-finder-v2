@@ -1,22 +1,10 @@
 import { useState } from 'react';
 
-interface EmailCollectionPopupProps {
-  onClose: () => void;
-  onSuccess: () => void;
-  fragrances: Array<{
-    title: string;
-    description: string;
-    image: string;
-    displayMatch: number;
-    fields: {
-      link_global?: string;
-    };
-  }>;
-  tags: string[];
-  quizUuid: string | null;
-}
+type EmailCollectionPopupProps = {
+  quizUuid: string;
+};
 
-export default function EmailCollectionPopup({ onClose, onSuccess, fragrances, tags, quizUuid }: EmailCollectionPopupProps) {
+export default function EmailCollectionPopup({ quizUuid }: EmailCollectionPopupProps) {
   const [email, setEmail] = useState('');
   const [agreed, setAgreed] = useState(false);
   const [consentError, setConsentError] = useState('');
