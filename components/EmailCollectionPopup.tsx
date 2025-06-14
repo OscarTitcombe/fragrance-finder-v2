@@ -1,8 +1,9 @@
 import { useState } from 'react';
+import type { Fragrance } from '@/app/results/page';
 
 type EmailCollectionPopupProps = {
   quizUuid: string;
-  fragrances: any[];
+  fragrances: Fragrance[];
   tags: string[];
 };
 

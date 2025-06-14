@@ -28,7 +28,7 @@ interface FragranceFields {
   [key: string]: unknown;
 }
 
-interface Fragrance {
+export interface Fragrance {
   id: string;
   frag_number: number;
   title: string;
