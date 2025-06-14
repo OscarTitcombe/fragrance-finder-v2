@@ -18,16 +18,28 @@ interface EmailCollectionPopupProps {
 
 export default function EmailCollectionPopup({ onClose, onSuccess, fragrances, tags, quizUuid }: EmailCollectionPopupProps) {
   const [email, setEmail] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
   const [agreed, setAgreed] = useState(false);
   const [consentError, setConsentError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [error, setError] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
     setError('');
     setConsentError('');
+
+    if (!agreed) {
+      setConsentError('Please agree to the Privacy Policy to continue');
+      return;
+    }
+
+    if (!email) {
+      setError('Please enter your email address');
+      return;
+    }
+
+    setIsSubmitting(true);
 
     try {
       if (!quizUuid) {
@@ -35,68 +47,51 @@ export default function EmailCollectionPopup({ onClose, onSuccess, fragrances, t
         throw new Error('No quiz response found');
       }
 
-      if (!agreed) {
-        setConsentError('You must agree to continue.');
-        setLoading(false);
-        return;
-      }
-
       console.log('📩 Saving email for UUID:', quizUuid);
 
-      // Save the email to Supabase via API route
-      const saveRes = await fetch('/api/save-email', {
+      const response = await fetch('/api/save-email', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          quizResponseId: quizUuid, 
-          email,
-          agreed_to_lead_terms: true 
-        }),
-      });
-      if (!saveRes.ok) {
-        const errorData = await saveRes.json();
-        throw new Error(errorData.error || 'Failed to save email');
-      }
-
-      // Send the quiz results email
-      const response = await fetch('/api/send-email', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify({
-          to: email,
-          fragrances: fragrances.map(f => ({
-            title: f.title,
-            description: f.description,
-            image: f.image,
-            matchScore: f.displayMatch,
-            purchaseUrl: f.fields.link_global as string | undefined,
-          })),
-          tags,
+          quizResponseId: quizUuid,
+          email,
+          agreed_to_lead_terms: true
         }),
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        console.error('Email API error:', errorData);
-        throw new Error(errorData.error || 'Failed to send email');
+        throw new Error('Failed to save email');
       }
 
-      // Store in localStorage to prevent showing popup again
-      localStorage.setItem('email_collected', 'true');
-      onSuccess();
+      setIsSubmitted(true);
     } catch (err) {
-      setError('Failed to save email. Please try again.');
       console.error('Error saving email:', err);
+      setError('Failed to save email. Please try again.');
     } finally {
-      setLoading(false);
+      setIsSubmitting(false);
     }
   };
 
+  if (isSubmitted) {
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div className="bg-white rounded-lg p-6 max-w-md w-full mx-auto">
+          <h2 className="text-xl font-semibold mb-4">Check Your Email</h2>
+          <p className="text-gray-600 mb-4">
+            We&apos;ve sent your personalized fragrance recommendations to your email address. Please check your inbox.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl p-8 max-w-md w-full shadow-xl">
-        <h2 className="text-2xl font-bold mb-4">Get Your Results</h2>
-        <p className="text-gray-600 mb-6">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+      <div className="bg-white rounded-lg p-6 max-w-md w-full mx-auto">
+        <h2 className="text-xl font-semibold mb-4">Get Your Personalized Recommendations</h2>
+        <p className="text-gray-600 mb-4">
           Enter your email to receive your personalized fragrance recommendations and exclusive offers.
         </p>
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -106,56 +101,39 @@ export default function EmailCollectionPopup({ onClose, onSuccess, fragrances, t
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Enter your email"
+              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-neutral-900"
               required
-              className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-neutral-900"
             />
+            {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
           </div>
-          {error && <p className="text-red-500 text-sm">{error}</p>}
-          
-          <div className="space-y-2">
-            <label className="flex items-start space-x-3 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={agreed}
-                onChange={(e) => setAgreed(e.target.checked)}
-                className="mt-1 h-4 w-4 rounded border-gray-300 text-neutral-900 focus:ring-neutral-900"
-                required
-              />
-              <span className="text-sm text-gray-600">
-                I agree to the{' '}
-                <a 
-                  href="/privacy" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="text-neutral-900 underline hover:text-neutral-700"
-                >
-                  Privacy Policy
-                </a>
-              </span>
-            </label>
-            {consentError && <p className="text-red-500 text-sm">{consentError}</p>}
-          </div>
-
-          <div className="flex gap-4">
-            <button
-              type="submit"
-              disabled={loading}
-              className="flex-1 bg-neutral-900 text-white py-3 rounded-lg font-semibold hover:opacity-90 transition disabled:opacity-50"
-            >
-              {loading ? 'Sending...' : 'Send Me My Results'}
-            </button>
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-6 py-3 rounded-lg border border-gray-300 hover:bg-gray-50 transition"
-            >
-              Skip
-            </button>
-          </div>
-
-          <p className="text-xs text-gray-500 mt-4">
-            By submitting your email, you agree to receive personalized fragrance recommendations, promotional content, and occasional updates. You can unsubscribe at any time.
-          </p>
+          <label className="flex gap-2 items-start">
+            <input
+              type="checkbox"
+              checked={agreed}
+              onChange={(e) => setAgreed(e.target.checked)}
+              className="mt-1 h-4 w-4 rounded border-gray-300 text-neutral-900 focus:ring-neutral-900"
+              required
+            />
+            <span className="text-sm text-gray-600">
+              I agree to the{' '}
+              <a 
+                href="/privacy" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-neutral-900 underline hover:text-neutral-700"
+              >
+                Privacy Policy
+              </a>
+            </span>
+          </label>
+          {consentError && <p className="text-red-500 text-sm">{consentError}</p>}
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="w-full bg-neutral-900 text-white py-2 px-4 rounded-md hover:bg-neutral-800 transition-colors disabled:opacity-50"
+          >
+            {isSubmitting ? 'Sending...' : 'Get My Recommendations'}
+          </button>
         </form>
       </div>
     </div>
