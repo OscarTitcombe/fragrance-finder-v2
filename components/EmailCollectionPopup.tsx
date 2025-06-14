@@ -15,7 +15,7 @@ interface Tag {
 }
 
 interface EmailCollectionPopupProps {
-  onSuccess: () => void
+  onSuccess: (email: string) => void
   fragrances: Fragrance[]
   tags: Tag[]
   quizUuid: string
@@ -93,7 +93,7 @@ export default function EmailCollectionPopup({ onSuccess, fragrances, tags, quiz
 
       // Store in localStorage to prevent showing popup again
       localStorage.setItem('email_collected', 'true');
-      onSuccess();
+      onSuccess(email);
     } catch (err) {
       setError('Failed to save email. Please try again.');
       console.error('Error saving email:', err);
