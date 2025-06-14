@@ -3,20 +3,40 @@ console.log('Supabase Key exists:', !!process.env.SUPABASE_ANON_KEY);
 
 import { createClient } from '@supabase/supabase-js'
 
+interface GeoLocation {
+  country_name: string;
+  city: string | null;
+  region: string | null;
+}
+
+let cachedGeo: GeoLocation | null = null;
+
+export async function getCachedGeo(): Promise<GeoLocation> {
+  if (cachedGeo) return cachedGeo;
+  try {
+    const res = await fetch('https://ipapi.co/json/');
+    const data = await res.json();
+    cachedGeo = {
+      country_name: typeof data.country_name === 'string' && data.country_name.trim() !== '' 
+        ? data.country_name 
+        : 'unknown',
+      city: typeof data.city === 'string' && data.city.trim() !== '' 
+        ? data.city 
+        : null,
+      region: typeof data.region === 'string' && data.region.trim() !== '' 
+        ? data.region 
+        : null
+    };
+    return cachedGeo;
+  } catch {
+    return { country_name: 'unknown', city: null, region: null };
+  }
+}
+
 const supabase = createClient(
   process.env.SUPABASE_URL!,
   process.env.SUPABASE_ANON_KEY!
 )
-
-async function getCountryFromIP(): Promise<string | null> {
-  try {
-    const res = await fetch('https://ipapi.co/json/')
-    const data = await res.json()
-    return data.country_name || null
-  } catch {
-    return null
-  }
-}
 
 export async function insertQuizResponse(quizAnswers: {
   gender: string
@@ -39,8 +59,8 @@ export async function insertQuizResponse(quizAnswers: {
     return;
   }
 
-  const user_country = await getCountryFromIP()
-  console.log('User country:', user_country);
+  const geo = await getCachedGeo();
+  console.log('User location:', geo);
 
   const tags = [
     quizAnswers.gender,
@@ -67,7 +87,9 @@ export async function insertQuizResponse(quizAnswers: {
     budget: quizAnswers.budget,
     brand_type: quizAnswers.brand_type,
     top_fragrance_ids: quizAnswers.top_fragrance_ids,
-    user_country,
+    user_country: geo.country_name,
+    user_city: geo.city,
+    user_region: geo.region,
     tags
   });
 
@@ -84,7 +106,9 @@ export async function insertQuizResponse(quizAnswers: {
       budget: quizAnswers.budget,
       brand_type: quizAnswers.brand_type,
       top_fragrance_ids: quizAnswers.top_fragrance_ids,
-      user_country,
+      user_country: geo.country_name,
+      user_city: geo.city,
+      user_region: geo.region,
       tags
     }
   ]).select()

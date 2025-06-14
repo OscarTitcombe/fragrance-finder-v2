@@ -11,7 +11,7 @@ export default function Privacy() {
             We collect the following types of data when you use our services:
             <ul className="list-disc list-inside ml-6 mt-1">
               <li>Your quiz responses and selected preferences</li>
-              <li>Metadata such as session ID, timestamp, and approximate location (if available)</li>
+              <li>Metadata such as session ID, timestamp, and approximate location (country, city, and region) collected via IP geolocation</li>
               <li>Optional information you provide (e.g. email for updates or offers)</li>
             </ul>
             We do not collect sensitive personal data like government IDs, health records, or precise GPS location.
