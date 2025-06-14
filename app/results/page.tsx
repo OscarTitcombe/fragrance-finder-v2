@@ -172,14 +172,8 @@ export default function Results() {
 
   return (
     <main className="min-h-screen flex flex-col items-start px-1 pt-4 font-jakarta w-full">
-      {showEmailPopup && (
-        <EmailCollectionPopup
-          onClose={() => setShowEmailPopup(false)}
-          onSuccess={() => setShowEmailPopup(false)}
-          fragrances={fragrances}
-          tags={tags}
-          quizUuid={quizUuid}
-        />
+      {showEmailPopup && quizUuid && (
+        <EmailCollectionPopup quizUuid={quizUuid} />
       )}
       <div className="w-full flex justify-between items-start mb-2">
         <h1 className="text-4xl font-semibold text-left">Recommended Fragrances</h1>
