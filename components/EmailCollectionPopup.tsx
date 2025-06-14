@@ -117,7 +117,7 @@ export default function EmailCollectionPopup({ quizUuid }: EmailCollectionPopupP
           {consentError && <p className="text-red-500 text-sm">{consentError}</p>}
           <button
             type="submit"
-            disabled={isSubmitting}
+            disabled={!agreed || isSubmitting}
             className="w-full bg-neutral-900 text-white py-2 px-4 rounded-md hover:bg-neutral-800 transition-colors disabled:opacity-50"
           >
             {isSubmitting ? 'Sending...' : 'Get My Recommendations'}
