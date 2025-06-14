@@ -50,6 +50,7 @@ export default function Results() {
   const [tags, setTags] = useState<string[]>(mockTags);
   const [loading, setLoading] = useState(true);
   const [showEmailPopup, setShowEmailPopup] = useState(false);
+  const [quizUuid, setQuizUuid] = useState<string | null>(null);
 
   // Fetch fragrances on mount
   useEffect(() => {
@@ -116,10 +117,19 @@ export default function Results() {
           throw new Error('Failed to save quiz response');
         }
 
-        // Only show email popup after quiz response is saved
-        const emailCollected = localStorage.getItem('email_collected');
-        if (!emailCollected) {
-          setShowEmailPopup(true);
+        const quizData = await quizResponse.json();
+        if (quizData.data && quizData.data[0] && quizData.data[0].id) {
+          const uuid = quizData.data[0].id;
+          console.log('✅ Quiz inserted, UUID:', uuid);
+          setQuizUuid(uuid);
+          
+          // Only show email popup after quiz response is saved and UUID is set
+          const emailCollected = localStorage.getItem('email_collected');
+          if (!emailCollected) {
+            setShowEmailPopup(true);
+          }
+        } else {
+          console.error('❌ No UUID returned from quiz response');
         }
       } catch (error) {
         console.error('Error in fetchData:', error);
@@ -138,6 +148,7 @@ export default function Results() {
           onSuccess={() => setShowEmailPopup(false)}
           fragrances={fragrances}
           tags={tags}
+          quizUuid={quizUuid}
         />
       )}
       <div className="w-full flex justify-between items-start mb-2">

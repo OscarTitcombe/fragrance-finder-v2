@@ -13,9 +13,10 @@ interface EmailCollectionPopupProps {
     };
   }>;
   tags: string[];
+  quizUuid: string | null;
 }
 
-export default function EmailCollectionPopup({ onClose, onSuccess, fragrances, tags }: EmailCollectionPopupProps) {
+export default function EmailCollectionPopup({ onClose, onSuccess, fragrances, tags, quizUuid }: EmailCollectionPopupProps) {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -26,17 +27,18 @@ export default function EmailCollectionPopup({ onClose, onSuccess, fragrances, t
     setError('');
 
     try {
-      // Get the quiz response ID from localStorage
-      const quizResponseId = localStorage.getItem('quiz_response_id');
-      if (!quizResponseId) {
+      if (!quizUuid) {
+        console.error('❌ No quiz UUID available for email submission');
         throw new Error('No quiz response found');
       }
+
+      console.log('📩 Saving email for UUID:', quizUuid);
 
       // Save the email to Supabase via API route
       const saveRes = await fetch('/api/save-email', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ quizResponseId, email }),
+        body: JSON.stringify({ quizResponseId: quizUuid, email }),
       });
       if (!saveRes.ok) {
         const errorData = await saveRes.json();
