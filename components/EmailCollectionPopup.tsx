@@ -57,10 +57,17 @@ export default function EmailCollectionPopup({ quizUuid, fragrances, tags }: Ema
       }
 
       // Send results email
+      const formattedFragrances = fragrances.map(f => ({
+        title: f.title,
+        description: f.description,
+        image: f.image,
+        matchScore: f.displayMatch,
+        purchaseUrl: f.fields.link_global as string | undefined,
+      }));
       const sendRes = await fetch('/api/send-email', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ to: email, fragrances, tags }),
+        body: JSON.stringify({ to: email, fragrances: formattedFragrances, tags }),
       });
       if (!sendRes.ok) throw new Error('Failed to send results email');
 
