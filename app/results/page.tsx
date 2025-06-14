@@ -61,47 +61,38 @@ export default function Results() {
         ? JSON.parse(decodeURIComponent(quizTagsCookie.split('=')[1]))
         : mockTags;
       setTags(quizTags);
-      // Fetch fragrances
-      const response = await fetch('/api/get-matching-fragrances', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ tags: quizTags })
-      });
-      let data;
-      try {
-        data = await response.json();
-      } catch {
-        data = {};
-      }
-      const results = Array.isArray(data.results) ? data.results : [];
-      setFragrances(results);
-      setLoading(false);
-      // Show email popup if email hasn't been collected yet
-      const emailCollected = localStorage.getItem('email_collected');
-      if (!emailCollected) {
-        setShowEmailPopup(true);
-      }
-    };
-    fetchData();
-  }, []);
 
-  // Insert quiz response into Supabase when fragrances are loaded
-  useEffect(() => {
-    const insertQuiz = async () => {
-      if (fragrances.length > 0) {
-        console.log('Fragrances loaded:', fragrances);
+      try {
+        // Fetch fragrances
+        const response = await fetch('/api/get-matching-fragrances', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ tags: quizTags })
+        });
+        let data;
+        try {
+          data = await response.json();
+        } catch {
+          data = {};
+        }
+        const results = Array.isArray(data.results) ? data.results : [];
+        setFragrances(results);
+
+        // Insert quiz response into Supabase
+        console.log('Fragrances loaded:', results);
         const quizAnswers = JSON.parse(localStorage.getItem('quiz_answers') || '{}');
         console.log('Quiz answers from localStorage:', quizAnswers);
-        const topFragranceIds = fragrances.slice(0, 3).map(f => {
+        const topFragranceIds = results.slice(0, 3).map((f: { frag_number: string | number }) => {
           // Extract number from "frag_89" format and convert to integer
           const fragNumber = parseInt(f.frag_number.toString().replace('frag_', ''));
           console.log('Converting frag_number:', f.frag_number, 'to:', fragNumber);
           return fragNumber;
         });
         console.log('Top fragrance IDs:', topFragranceIds);
-        await fetch('/api/insert-quiz-response', {
+
+        const quizResponse = await fetch('/api/insert-quiz-response', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
@@ -120,10 +111,24 @@ export default function Results() {
             top_fragrance_ids: topFragranceIds
           })
         });
+
+        if (!quizResponse.ok) {
+          throw new Error('Failed to save quiz response');
+        }
+
+        // Only show email popup after quiz response is saved
+        const emailCollected = localStorage.getItem('email_collected');
+        if (!emailCollected) {
+          setShowEmailPopup(true);
+        }
+      } catch (error) {
+        console.error('Error in fetchData:', error);
+      } finally {
+        setLoading(false);
       }
     };
-    insertQuiz();
-  }, [fragrances]);
+    fetchData();
+  }, []);
 
   return (
     <main className="min-h-screen flex flex-col items-start px-1 pt-4 font-jakarta w-full">
