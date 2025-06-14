@@ -43,6 +43,12 @@ interface Fragrance {
   displayMatch: number;
 }
 
+interface GeoLocation {
+  country_name: string;
+  city: string | null;
+  region: string | null;
+}
+
 const disclosureText = 'We may earn a commission when you click links and make purchases. As an affiliate, we only recommend products we believe in. This helps support our work, at no extra cost to you.';
 
 export default function Results() {
@@ -51,6 +57,27 @@ export default function Results() {
   const [loading, setLoading] = useState(true);
   const [showEmailPopup, setShowEmailPopup] = useState(false);
   const [quizUuid, setQuizUuid] = useState<string | null>(null);
+  const [geo, setGeo] = useState<GeoLocation | null>(null);
+
+  // Fetch geolocation on mount
+  useEffect(() => {
+    const fetchGeo = async () => {
+      try {
+        const res = await fetch('https://ipapi.co/json/');
+        const data = await res.json();
+        console.log('🌍 Fetched geolocation:', data);
+        setGeo({
+          country_name: data.country_name || 'unknown',
+          city: data.city || null,
+          region: data.region || null,
+        });
+      } catch (err) {
+        console.warn('❌ IP geo fetch failed:', err);
+        setGeo({ country_name: 'unknown', city: null, region: null });
+      }
+    };
+    fetchGeo();
+  }, []);
 
   // Fetch fragrances on mount
   useEffect(() => {
@@ -109,7 +136,10 @@ export default function Results() {
             longevity: quizAnswers.longevity || '',
             budget: quizAnswers.budget || '',
             brand_type: quizAnswers.brand || '',
-            top_fragrance_ids: topFragranceIds
+            top_fragrance_ids: topFragranceIds,
+            user_country: geo?.country_name ?? 'unknown',
+            user_city: geo?.city ?? null,
+            user_region: geo?.region ?? null
           })
         });
 
@@ -138,7 +168,7 @@ export default function Results() {
       }
     };
     fetchData();
-  }, []);
+  }, [geo]); // Add geo as a dependency to re-run when geolocation is available
 
   return (
     <main className="min-h-screen flex flex-col items-start px-1 pt-4 font-jakarta w-full">

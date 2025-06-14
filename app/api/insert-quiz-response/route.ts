@@ -103,8 +103,10 @@ export async function POST(req: NextRequest) {
         city: typeof body.user_city === 'string' ? body.user_city.trim() : null,
         region: typeof body.user_region === 'string' ? body.user_region.trim() : null
       };
+      console.log('📍 Using location from request body:', location);
     } else {
       location = await getLocationFromIP(ip);
+      console.log('📍 Using location from IP:', location);
     }
 
     // Validate email
@@ -126,6 +128,8 @@ export async function POST(req: NextRequest) {
       user_region: location.region,
       email,
     };
+
+    console.log('📝 Inserting quiz response with data:', insertData);
 
     const { data, error } = await supabase.from('quiz_responses').insert([insertData]).select();
     if (error) {
