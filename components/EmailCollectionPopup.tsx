@@ -121,7 +121,7 @@ export default function EmailCollectionPopup({ onClose, onSuccess, fragrances, t
                 className="mt-1 h-4 w-4 rounded border-gray-300 text-neutral-900 focus:ring-neutral-900"
               />
               <span className="text-sm text-gray-600">
-                I agree to receive fragrance recommendations and marketing emails. I've read and accept the{' '}
+                I agree to receive fragrance recommendations and marketing emails. I have read and accept the{' '}
                 <a 
                   href="/privacy" 
                   target="_blank" 
