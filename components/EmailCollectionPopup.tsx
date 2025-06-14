@@ -1,54 +1,44 @@
 import { useState } from 'react';
 
-interface Fragrance {
-  title: string
-  description: string
-  image: string
-  displayMatch: number
-  fields: {
-    link_global?: string
-  }
-}
-
-interface Tag {
-  name: string
-}
-
 interface EmailCollectionPopupProps {
-  onSuccess: (email: string) => void
-  fragrances: Fragrance[]
-  tags: Tag[]
-  quizUuid: string
+  onClose: () => void;
+  onSuccess: () => void;
+  fragrances: Array<{
+    title: string;
+    description: string;
+    image: string;
+    displayMatch: number;
+    fields: {
+      link_global?: string;
+    };
+  }>;
+  tags: string[];
+  quizUuid: string | null;
 }
 
-export default function EmailCollectionPopup({ onSuccess, fragrances, tags, quizUuid }: EmailCollectionPopupProps) {
-  const [email, setEmail] = useState('')
-  const [agreed, setAgreed] = useState(false)
-  const [consentError, setConsentError] = useState('')
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [error, setError] = useState('')
+export default function EmailCollectionPopup({ onClose, onSuccess, fragrances, tags, quizUuid }: EmailCollectionPopupProps) {
+  const [email, setEmail] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [agreed, setAgreed] = useState(false);
+  const [consentError, setConsentError] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true);
     setError('');
     setConsentError('');
-    
-    if (!agreed) {
-      setConsentError('You must agree to the Privacy Policy.');
-      return;
-    }
-
-    if (!email || !email.includes('@')) {
-      setError('Please enter a valid email address');
-      return;
-    }
-
-    setIsSubmitting(true);
 
     try {
       if (!quizUuid) {
         console.error('❌ No quiz UUID available for email submission');
         throw new Error('No quiz response found');
+      }
+
+      if (!agreed) {
+        setConsentError('You must agree to continue.');
+        setLoading(false);
+        return;
       }
 
       console.log('📩 Saving email for UUID:', quizUuid);
@@ -93,12 +83,12 @@ export default function EmailCollectionPopup({ onSuccess, fragrances, tags, quiz
 
       // Store in localStorage to prevent showing popup again
       localStorage.setItem('email_collected', 'true');
-      onSuccess(email);
+      onSuccess();
     } catch (err) {
       setError('Failed to save email. Please try again.');
       console.error('Error saving email:', err);
     } finally {
-      setIsSubmitting(false);
+      setLoading(false);
     }
   };
 
@@ -122,16 +112,14 @@ export default function EmailCollectionPopup({ onSuccess, fragrances, tags, quiz
           </div>
           {error && <p className="text-red-500 text-sm">{error}</p>}
           
-          <div className="mt-4">
-            <label className="text-sm flex gap-2 items-start">
+          <div className="space-y-2">
+            <label className="flex items-start space-x-3 cursor-pointer">
               <input
                 type="checkbox"
                 checked={agreed}
-                onChange={(e) => {
-                  setAgreed(e.target.checked);
-                  setConsentError('');
-                }}
-                className="mt-1"
+                onChange={(e) => setAgreed(e.target.checked)}
+                className="mt-1 h-4 w-4 rounded border-gray-300 text-neutral-900 focus:ring-neutral-900"
+                required
               />
               <span className="text-sm text-gray-600">
                 I agree to the{' '}
@@ -142,23 +130,30 @@ export default function EmailCollectionPopup({ onSuccess, fragrances, tags, quiz
                   className="text-neutral-900 underline hover:text-neutral-700"
                 >
                   Privacy Policy
-                </a>.
+                </a>
               </span>
             </label>
-            {consentError && (
-              <p className="text-red-500 text-sm mt-1">{consentError}</p>
-            )}
+            {consentError && <p className="text-red-500 text-sm">{consentError}</p>}
           </div>
 
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="w-full bg-neutral-900 text-white py-2 px-4 rounded-md hover:bg-neutral-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed mt-4"
-          >
-            {isSubmitting ? 'Saving...' : 'Save Email'}
-          </button>
+          <div className="flex gap-4">
+            <button
+              type="submit"
+              disabled={loading}
+              className="flex-1 bg-neutral-900 text-white py-3 rounded-lg font-semibold hover:opacity-90 transition disabled:opacity-50"
+            >
+              {loading ? 'Sending...' : 'Send Me My Results'}
+            </button>
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-6 py-3 rounded-lg border border-gray-300 hover:bg-gray-50 transition"
+            >
+              Skip
+            </button>
+          </div>
 
-          <p className="text-xs text-gray-500 mt-3">
+          <p className="text-xs text-gray-500 mt-4">
             By submitting your email, you agree to receive personalized fragrance recommendations, promotional content, and occasional updates. You can unsubscribe at any time.
           </p>
         </form>
