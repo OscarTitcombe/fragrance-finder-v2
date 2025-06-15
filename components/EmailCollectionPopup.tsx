@@ -158,7 +158,7 @@ export default function EmailCollectionPopup({ quizUuid, fragrances, tags }: Ema
               className="mt-1 h-4 w-4 rounded border-gray-300 text-neutral-900 focus:ring-neutral-900"
             />
             <span className="text-sm text-gray-600">
-              Subscribe to 'The Scent' Newsletter
+              Subscribe to The Scent Newsletter
             </span>
           </label>
           {consentError && <p className="text-red-500 text-sm">{consentError}</p>}
