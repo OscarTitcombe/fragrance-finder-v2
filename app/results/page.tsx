@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { track } from '@vercel/analytics';
 import EmailCollectionPopup from '@/components/EmailCollectionPopup';
 
@@ -51,6 +51,20 @@ interface GeoLocation {
 
 const disclosureText = 'We may earn a commission when you click links and make purchases. As an affiliate, we only recommend products we believe in. This helps support our work, at no extra cost to you.';
 
+// Helper to get cookie value by name
+function getCookie(name: string): string | null {
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) return parts.pop()!.split(';').shift() || null;
+  return null;
+}
+
+// Helper to set cookie
+function setCookie(name: string, value: string, days: number) {
+  const expires = new Date(Date.now() + days * 864e5).toUTCString();
+  document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=/`;
+}
+
 export default function Results() {
   const [fragrances, setFragrances] = useState<Fragrance[]>([]);
   const [tags, setTags] = useState<string[]>(mockTags);
@@ -58,6 +72,9 @@ export default function Results() {
   const [showEmailPopup, setShowEmailPopup] = useState(false);
   const [quizUuid, setQuizUuid] = useState<string | null>(null);
   const [geo, setGeo] = useState<GeoLocation | null>(null);
+
+  // Guard to prevent multiple inserts
+  const insertAttemptedRef = useRef(false);
 
   // Fetch geolocation on mount
   useEffect(() => {
@@ -89,6 +106,22 @@ export default function Results() {
         ? JSON.parse(decodeURIComponent(quizTagsCookie.split('=')[1]))
         : mockTags;
       setTags(quizTags);
+
+      // Check for existing quiz response UUID in cookie
+      const existingUuid = getCookie('quiz_response_uuid');
+      if (existingUuid) {
+        setQuizUuid(existingUuid);
+        setLoading(false);
+        const emailCollected = localStorage.getItem('email_collected');
+        if (!emailCollected) {
+          setShowEmailPopup(true);
+        }
+        return;
+      }
+
+      // Guard: only allow one insert attempt per session
+      if (insertAttemptedRef.current) return;
+      insertAttemptedRef.current = true;
 
       try {
         // Fetch fragrances
@@ -152,8 +185,7 @@ export default function Results() {
           const uuid = quizData.data[0].id;
           console.log('✅ Quiz inserted, UUID:', uuid);
           setQuizUuid(uuid);
-          
-          // Only show email popup after quiz response is saved and UUID is set
+          setCookie('quiz_response_uuid', uuid, 30); // Store UUID in cookie for 30 days
           const emailCollected = localStorage.getItem('email_collected');
           if (!emailCollected) {
             setShowEmailPopup(true);

@@ -120,6 +120,19 @@ export async function POST(req: NextRequest) {
       process.env.SUPABASE_ANON_KEY!
     );
 
+    // Check for existing submission using the quiz answers as a unique identifier
+    const { data: existingData } = await supabase
+      .from('quiz_responses')
+      .select('id')
+      .eq('tags', tags)
+      .order('created_at', { ascending: false })
+      .limit(1);
+
+    if (existingData && existingData.length > 0) {
+      console.log('Found existing quiz response, returning existing ID:', existingData[0].id);
+      return NextResponse.json({ success: true, data: existingData }, { status: 200 });
+    }
+
     const insertData = {
       ...body,
       tags,

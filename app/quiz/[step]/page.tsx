@@ -5,6 +5,11 @@ import { useQuiz } from '@/lib/useQuiz';
 import { useEffect, useState, useRef } from 'react';
 import { track } from '@vercel/analytics';
 
+// Helper to remove cookie
+function removeCookie(name: string) {
+  document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+}
+
 export default function QuizStep() {
   const params = useParams();
   const router = useRouter();
@@ -37,6 +42,7 @@ export default function QuizStep() {
   useEffect(() => {
     if (step === 1) {
       clearAnswers();
+      removeCookie('quiz_response_uuid');
     }
   }, [step, clearAnswers]);
 
