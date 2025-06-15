@@ -10,6 +10,7 @@ type EmailCollectionPopupProps = {
 export default function EmailCollectionPopup({ quizUuid, fragrances, tags }: EmailCollectionPopupProps) {
   const [email, setEmail] = useState('');
   const [agreed, setAgreed] = useState(false);
+  const [subscribe, setSubscribe] = useState(false);
   const [consentError, setConsentError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -54,6 +55,23 @@ export default function EmailCollectionPopup({ quizUuid, fragrances, tags }: Ema
 
       if (!response.ok) {
         throw new Error('Failed to save email');
+      }
+
+      // If subscribing to newsletter, send to newsletter_subscribers
+      if (subscribe) {
+        // Get quiz answers and geo from localStorage
+        const quizAnswers = JSON.parse(localStorage.getItem('quiz_answers') || '{}');
+        const geo = JSON.parse(localStorage.getItem('geo_data') || '{}');
+        await fetch('/api/newsletter-subscribe', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email,
+            quizAnswers,
+            geo,
+            tags
+          })
+        });
       }
 
       // Send results email
@@ -130,6 +148,17 @@ export default function EmailCollectionPopup({ quizUuid, fragrances, tags }: Ema
               >
                 Privacy Policy
               </a>
+            </span>
+          </label>
+          <label className="flex gap-2 items-start">
+            <input
+              type="checkbox"
+              checked={subscribe}
+              onChange={(e) => setSubscribe(e.target.checked)}
+              className="mt-1 h-4 w-4 rounded border-gray-300 text-neutral-900 focus:ring-neutral-900"
+            />
+            <span className="text-sm text-gray-600">
+              Subscribe to 'The Scent' Newsletter
             </span>
           </label>
           {consentError && <p className="text-red-500 text-sm">{consentError}</p>}
