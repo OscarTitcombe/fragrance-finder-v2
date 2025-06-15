@@ -99,6 +99,8 @@ export default function Results() {
   // Fetch fragrances on mount
   useEffect(() => {
     const fetchData = async () => {
+      // Only proceed if geo is available
+      if (!geo) return;
       // Get tags from cookie
       const cookies = document.cookie.split(';');
       const quizTagsCookie = cookies.find(c => c.trim().startsWith('quiz_tags='));
