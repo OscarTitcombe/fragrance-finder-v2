@@ -11,14 +11,20 @@ export async function POST(req: NextRequest) {
       process.env.SUPABASE_URL!,
       process.env.SUPABASE_ANON_KEY!
     );
-    const { data, error } = await supabase.from('newsletter_subscribers').insert([
+    
+    // Use upsert to prevent duplicate emails
+    const { data, error } = await supabase.from('newsletter_subscribers').upsert([
       {
         email,
         geo: geo || null,
         quiz_answers: quizAnswers || null,
         tags: tags || null,
       }
-    ]).select();
+    ], {
+      onConflict: 'email', // Assuming 'email' is the unique constraint
+      ignoreDuplicates: true // This will ignore duplicates instead of updating
+    }).select();
+    
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }

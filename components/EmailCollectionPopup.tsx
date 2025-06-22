@@ -106,6 +106,9 @@ export default function EmailCollectionPopup({ quizUuid, fragrances, tags }: Ema
           <p className="text-gray-600 mb-4">
             We&apos;ve sent your personalized fragrance recommendations to your email address. Please check your inbox.
           </p>
+          <p className="text-sm text-gray-500">
+            💡 Don&apos;t see it? Check your spam or junk folder - sometimes our emails end up there!
+          </p>
         </div>
       </div>
     );
