@@ -86,12 +86,6 @@ export default function EmailCollectionPopup({ quizUuid, fragrances, tags }: Ema
           
           const newsletterData = await newsletterResponse.json();
           console.log('✅ Newsletter subscription successful:', newsletterData);
-          
-          if (newsletterData.updated) {
-            console.log('📧 Updated existing newsletter subscriber');
-          } else if (newsletterData.inserted) {
-            console.log('📧 Inserted new newsletter subscriber');
-          }
         } catch (newsletterError) {
           console.error('❌ Newsletter subscription error:', newsletterError);
           // Don't fail the entire form submission for newsletter errors
