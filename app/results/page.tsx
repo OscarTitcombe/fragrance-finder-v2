@@ -83,14 +83,19 @@ export default function Results() {
         const res = await fetch('https://ipapi.co/json/');
         const data = await res.json();
         console.log('🌍 Fetched geolocation:', data);
-        setGeo({
+        const geoData = {
           country_name: data.country_name || 'unknown',
           city: data.city || null,
           region: data.region || null,
-        });
+        };
+        setGeo(geoData);
+        // Store geo data in localStorage for newsletter subscription
+        localStorage.setItem('geo_data', JSON.stringify(geoData));
       } catch (err) {
         console.warn('❌ IP geo fetch failed:', err);
-        setGeo({ country_name: 'unknown', city: null, region: null });
+        const fallbackGeo = { country_name: 'unknown', city: null, region: null };
+        setGeo(fallbackGeo);
+        localStorage.setItem('geo_data', JSON.stringify(fallbackGeo));
       }
     };
     fetchGeo();

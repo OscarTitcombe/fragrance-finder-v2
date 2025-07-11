@@ -59,19 +59,44 @@ export default function EmailCollectionPopup({ quizUuid, fragrances, tags }: Ema
 
       // If subscribing to newsletter, send to newsletter_subscribers
       if (subscribe) {
-        // Get quiz answers and geo from localStorage
-        const quizAnswers = JSON.parse(localStorage.getItem('quiz_answers') || '{}');
-        const geo = JSON.parse(localStorage.getItem('geo_data') || '{}');
-        await fetch('/api/newsletter-subscribe', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            email,
-            quizAnswers,
-            geo,
-            tags
-          })
-        });
+        try {
+          // Get quiz answers and geo from localStorage
+          const quizAnswers = JSON.parse(localStorage.getItem('quiz_answers') || '{}');
+          const geo = JSON.parse(localStorage.getItem('geo_data') || '{}');
+          console.log('📧 Subscribing to newsletter:', { email, quizAnswers, geo, tags });
+          console.log('📧 localStorage quiz_answers:', localStorage.getItem('quiz_answers'));
+          console.log('📧 localStorage geo_data:', localStorage.getItem('geo_data'));
+          
+          const newsletterResponse = await fetch('/api/newsletter-subscribe', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              email,
+              quizAnswers,
+              geo,
+              tags
+            })
+          });
+          
+          if (!newsletterResponse.ok) {
+            const errorData = await newsletterResponse.json().catch(() => ({}));
+            console.error('❌ Newsletter subscription failed:', errorData);
+            throw new Error(`Newsletter subscription failed: ${errorData.error || 'Unknown error'}`);
+          }
+          
+          const newsletterData = await newsletterResponse.json();
+          console.log('✅ Newsletter subscription successful:', newsletterData);
+          
+          if (newsletterData.updated) {
+            console.log('📧 Updated existing newsletter subscriber');
+          } else if (newsletterData.inserted) {
+            console.log('📧 Inserted new newsletter subscriber');
+          }
+        } catch (newsletterError) {
+          console.error('❌ Newsletter subscription error:', newsletterError);
+          // Don't fail the entire form submission for newsletter errors
+          // Just log the error and continue
+        }
       }
 
       // Send results email
